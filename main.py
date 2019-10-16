@@ -1,12 +1,13 @@
+from datetime import datetime, timezone
 from itertools import cycle
 
+import asyncpg
 import discord
 from discord.ext import commands, tasks
 
-import asyncpg
-
-import secrets
 import gallery
+import patreon_poll
+import secrets
 
 bot = commands.Bot(
     command_prefix='!',
@@ -99,6 +100,40 @@ async def setmementos(ctx, mementos_id: int):
         await bot.pg_con.execute("INSERT INTO gallery_mementos (channel_id, channel_name) VALUES ($1, $2)", mementos_id,
                                  "mementos")
     await bot.pg_con.execute("UPDATE gallery_mementos SET channel_id=$1 WHERE channel_name=$2", mementos_id, "mementos")
+
+
+@bot.command(aliases=["p"])
+async def poll(ctx, x=None):
+    active_polls = await bot.pg_con.fetch("SELECT * FROM poll WHERE expire_date > now()")
+    if active_polls and x is None:
+        await patreon_poll.p_poll(active_polls, ctx, bot)
+    else:
+        last_poll = await bot.pg_con.fetch("SELECT COUNT (*) FROM poll")
+        if x is None:
+            x = last_poll[0][0]
+        value = await bot.pg_con.fetch("SELECT * FROM poll ORDER BY id OFFSET $1 LIMIT 1", int(x) - 1)
+        await patreon_poll.p_poll(value, ctx, bot)
+
+
+@bot.command(aliases=["pl"])
+async def polllist(ctx, year=datetime.now(timezone.utc).year):
+    polls_year = await bot.pg_con.fetch(
+        "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY poll.start_date ASC) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
+        year)
+    if not polls_year:
+        await ctx.send("Sorry there were no polls that year that i could find :(")
+    else:
+        embed = discord.Embed(title="List of polls", color=discord.Color(0x3cd63d),
+                              description=f"**{year}**")
+        for polls in polls_year:
+            embed.add_field(name=f"{polls['title']}", value=polls['poll_number'], inline=False)
+        await ctx.send(embed=embed)
+
+
+@bot.command()
+@commands.is_owner()
+async def getpoll(ctx):
+    await patreon_poll.get_poll(bot)
 
 
 @bot.command()
