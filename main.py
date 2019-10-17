@@ -180,7 +180,7 @@ async def addlink(ctx, content, title, input_tag=None):
 
 
 @bot.command()
-async def deletelink(ctx, title):
+async def delink(ctx, title):
     result = await bot.pg_con.execute("DELETE FROM tags WHERE title = $1", title)
     if result == "DELETE 1":
         await ctx.send(f"Deleted link: **{title}**")
@@ -189,7 +189,7 @@ async def deletelink(ctx, title):
 
 
 @bot.command()
-async def viewtags(ctx):
+async def tags(ctx):
     query_r = await bot.pg_con.fetch("SELECT tag FROM tags")
     message = ""
     for tags in query_r:
@@ -265,8 +265,8 @@ async def help(ctx):
     embed.add_field(name="!link", value="Use: !link [title]\nPosts the link with the given name.")
     embed.add_field(name="!addlink",
                     value="Use: !link [url][title][tag]\nAdds a link with the given name to the given url and tag")
-    embed.add_field(name="!deletelink", value="Use: !deletelink [title]\nDeletes a link with the given name")
-    embed.add_field(name="!viewtags", value="Use !viewtags\nSee all available tags")
+    embed.add_field(name="!delink", value="Use: !delink [title]\nDeletes a link with the given name")
+    embed.add_field(name="!tags", value="Use !tags\nSee all available tags")
     embed.add_field(name="!tag", value="Use !tag [tag]\nView all links that got a certain tag")
     await ctx.send(embed=embed)
 
