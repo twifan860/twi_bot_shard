@@ -158,27 +158,34 @@ async def wiki(ctx, *, query):
 
 
 @bot.command()
-async def link(ctx, input):
-    query_r = await bot.pg_con.fetch("SELECT content, title FROM tags WHERE title = $1", input)
-    for posts in query_r:
-        await ctx.send(f"{posts['title']}: {posts['content']}")
+async def link(ctx, user_input):
+    query_r = await bot.pg_con.fetch("SELECT content, title FROM tags WHERE title = $1", user_input)
+    if query_r:
+        await ctx.send(f"{query_r[0]['title']}: {query_r[0]['content']}")
+    else:
+        await ctx.send(f"I could not find a link with the title **{user_input}**")
+
 
 
 @bot.command()
-async def addlink(ctx, content, title, tag=None):
+async def addlink(ctx, content, title, input_tag=None):
     try:
         await bot.pg_con.execute(
             "INSERT INTO tags(content, tag, user_who_added, id_user_who_added, time_added, title) "
             "VALUES ($1,$2,$3,$4,current_date,$5)",
-            content, tag, ctx.author.display_name, ctx.author.id, title)
-        await ctx.send(f"Added Link: {title}\nLink: <{content}>\nTag: {tag}")
+            content, input_tag, ctx.author.display_name, ctx.author.id, title)
+        await ctx.send(f"Added Link: {title}\nLink: <{content}>\nTag: {input_tag}")
     except asyncpg.exceptions.UniqueViolationError:
         await ctx.send("That name is already in the list.")
 
 
 @bot.command()
 async def deletelink(ctx, title):
-    await bot.pg_con.execute("DELETE FROM tags WHERE title = $1", title)
+    result = await bot.pg_con.execute("DELETE FROM tags WHERE title = $1", title)
+    if result == "DELETE 1":
+        await ctx.send(f"Deleted link: **{title}**")
+    else:
+        await ctx.send(f"I could not find a link with the title: **{title}**")
 
 
 @bot.command()
@@ -191,12 +198,13 @@ async def viewtags(ctx):
 
 
 @bot.command()
-async def tag(ctx, input):
-    query_r = await bot.pg_con.fetch("SELECT title FROM tags WHERE tag = $1", input)
+async def tag(ctx, user_input):
+    query_r = await bot.pg_con.fetch("SELECT title FROM tags WHERE tag = $1", user_input)
     message = ""
     for tags in query_r:
         message = f"{message}`{tags['title']}`\n"
     await ctx.send(f"links: {message}")
+
 
 @bot.command()
 async def ping(ctx):
