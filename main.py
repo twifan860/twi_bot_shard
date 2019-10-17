@@ -207,7 +207,7 @@ async def tags(ctx):
 
 @bot.command()
 async def tag(ctx, user_input):
-    query_r = await bot.pg_con.fetch("SELECT title FROM tags WHERE lower(tag) = lower($1)", user_input)
+    query_r = await bot.pg_con.fetch("SELECT title FROM tags WHERE lower(tag) = lower($1) ORDER BY title", user_input)
     message = ""
     for tags in query_r:
         message = f"{message}\n`{tags['title']}`"
