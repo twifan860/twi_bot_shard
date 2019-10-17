@@ -36,7 +36,7 @@ async def on_ready():
 
 
 async def create_db_pool():
-    bot.pg_con = await asyncpg.create_pool(database="testDB", user="postgres", password=secrets.DB_pass)
+    bot.pg_con = await asyncpg.create_pool(database="testDB", user="pi", password=secrets.DB_pass)
 
 
 @tasks.loop(seconds=10)
@@ -44,16 +44,16 @@ async def status_loop():
     await bot.change_presence(activity=discord.Game(next(status)))
 
 
-@bot.event
-async def on_command_error(ctx, error):
-    if hasattr(ctx.command, "on_error"):
-        return
-    elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Please pass an argument")
-    elif isinstance(error, commands.NotOwner):
-        await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
-    elif isinstance(error, commands.MissingRole):
-        await ctx.send("I'm sorry, you don't seem to have the required role for that")
+#@bot.event
+#async def on_command_error(ctx, error):
+#    if hasattr(ctx.command, "on_error"):
+#        return
+#    elif isinstance(error, commands.MissingRequiredArgument):
+#        await ctx.send("Please pass an argument")
+#    elif isinstance(error, commands.NotOwner):
+#        await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
+#    elif isinstance(error, commands.MissingRole):
+#        await ctx.send("I'm sorry, you don't seem to have the required role for that")
 
 
 def admin_or_me_check(ctx):
@@ -183,8 +183,9 @@ async def help(ctx):
                                                  "\nNote: The image needs to be an embed")
     embed.add_field(name="!setgallery", value="Use: !setgallery [channel id]\n"
                                               "sets which channel !gallery should post in", inline=False)
-    embed.add_field(name="!setmementos", value="Use: !setmementos [channel id]\n"
-                                               "sets which channel !mementos should post in", inline=False)
+    embed.add_field(name="!setmementos", value="Use: !setmementos [channel id]\n" "sets which channel !mementos should post in", inline=False)
+    embed.add_field(name="!poll [!p]", value="Use: !poll, !poll [id]\nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.")
+    embed.add_field(name="!polllist [!pl]", value="Use: !polllist, !polllist [year]\nShows the list of ids of all polls sorted by year.")
     await ctx.send(embed=embed)
 
 
