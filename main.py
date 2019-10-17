@@ -158,6 +158,47 @@ async def wiki(ctx, *, query):
 
 
 @bot.command()
+async def link(ctx, input):
+    query_r = await bot.pg_con.fetch("SELECT content, title FROM tags WHERE title = $1", input)
+    for posts in query_r:
+        await ctx.send(f"{posts['title']}: {posts['content']}")
+
+
+@bot.command()
+async def addlink(ctx, content, title, tag=None):
+    try:
+        await bot.pg_con.execute(
+            "INSERT INTO tags(content, tag, user_who_added, id_user_who_added, time_added, title) "
+            "VALUES ($1,$2,$3,$4,current_date,$5)",
+            content, tag, ctx.author.display_name, ctx.author.id, title)
+        await ctx.send(f"Added Link: {title}\nLink: <{content}>\nTag: {tag}")
+    except asyncpg.exceptions.UniqueViolationError:
+        await ctx.send("That name is already in the list.")
+
+
+@bot.command()
+async def deletelink(ctx, title):
+    await bot.pg_con.execute("DELETE FROM tags WHERE title = $1", title)
+
+
+@bot.command()
+async def viewtags(ctx):
+    query_r = await bot.pg_con.fetch("SELECT tag FROM tags")
+    message = ""
+    for tags in query_r:
+        message = f"{message} `{tags['tag']}`"
+    await ctx.send(f"Tags: {message}")
+
+
+@bot.command()
+async def tag(ctx, input):
+    query_r = await bot.pg_con.fetch("SELECT title FROM tags WHERE tag = $1", input)
+    message = ""
+    for tags in query_r:
+        message = f"{message}`{tags['title']}`\n"
+    await ctx.send(f"links: {message}")
+
+@bot.command()
 async def ping(ctx):
     await ctx.send(f"{round(bot.latency * 1000)} ms")
 
@@ -213,6 +254,12 @@ async def help(ctx):
                     value="Use: !polllist, !polllist [year]\nShows the list of ids of all polls sorted by year.")
     embed.add_field(name="!wiki [!w]",
                     value="Use: !wiki Toren, !w Niers\nSearches the TWI wiki for a matching article.")
+    embed.add_field(name="!link", value="Use: !link [title]\nPosts the link with the given name.")
+    embed.add_field(name="!addlink",
+                    value="Use: !link [url][title][tag]\nAdds a link with the given name to the given url and tag")
+    embed.add_field(name="!deletelink", value="Use: !deletelink [title]\nDeletes a link with the given name")
+    embed.add_field(name="!viewtags", value="Use !viewtags\nSee all available tags")
+    embed.add_field(name="!tag", value="Use !tag [tag]\nView all links that got a certain tag")
     await ctx.send(embed=embed)
 
 
