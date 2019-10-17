@@ -265,18 +265,21 @@ async def help(ctx):
                     value="Use: !setmementos [channel id]\n" "sets which channel !mementos should post in",
                     inline=False)
     embed.add_field(name="!poll [!p]",
-                    value="Use: !poll, !poll [id]\nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.")
+                    value="Use: !poll, !poll [id]\nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.",
+                    inline=False)
     embed.add_field(name="!polllist [!pl]",
-                    value="Use: !polllist, !polllist [year]\nShows the list of ids of all polls sorted by year.")
+                    value="Use: !polllist, !polllist [year]\nShows the list of ids of all polls sorted by year.",
+                    inline=False)
     embed.add_field(name="!wiki [!w]",
-                    value="Use: !wiki Toren, !w Niers\nSearches the TWI wiki for a matching article.")
-    embed.add_field(name="!link", value="Use: !link [title]\nPosts the link with the given name.")
-    embed.add_field(name="!links", value="Use: !links\nView all links.")
+                    value="Use: !wiki Toren, !w Niers\nSearches the TWI wiki for a matching article.", inline=False)
+    embed.add_field(name="!link", value="Use: !link [title]\nPosts the link with the given name.", inline=False)
+    embed.add_field(name="!links", value="Use: !links\nView all links.", inline=False)
     embed.add_field(name="!addlink",
-                    value="Use: !link [url][title][tag]\nAdds a link with the given name to the given url and tag")
-    embed.add_field(name="!delink", value="Use: !delink [title]\nDeletes a link with the given name")
-    embed.add_field(name="!tags", value="Use !tags\nSee all available tags")
-    embed.add_field(name="!tag", value="Use !tag [tag]\nView all links that got a certain tag")
+                    value="Use: !link [url][title][tag]\nAdds a link with the given name to the given url and tag",
+                    inline=False)
+    embed.add_field(name="!delink", value="Use: !delink [title]\nDeletes a link with the given name", inline=False)
+    embed.add_field(name="!tags", value="Use !tags\nSee all available tags", inline=False)
+    embed.add_field(name="!tag", value="Use !tag [tag]\nView all links that got a certain tag", inline=False)
     await ctx.send(embed=embed)
 
 
