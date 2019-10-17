@@ -1,6 +1,8 @@
+import json
 from datetime import datetime, timezone
 from itertools import cycle
 
+import aiohttp
 import asyncpg
 import discord
 from discord.ext import commands, tasks
@@ -14,8 +16,6 @@ bot = commands.Bot(
     description="The wandering inn bot",
     case_insensitive=True, )
 bot.remove_command("help")
-
-admin_role_id = 346842813687922689
 
 status = cycle(["Killing the mages of Wistram",
                 "Cleaning up a mess",
@@ -44,22 +44,22 @@ async def status_loop():
     await bot.change_presence(activity=discord.Game(next(status)))
 
 
-#@bot.event
-#async def on_command_error(ctx, error):
-#    if hasattr(ctx.command, "on_error"):
-#        return
-#    elif isinstance(error, commands.MissingRequiredArgument):
-#        await ctx.send("Please pass an argument")
-#    elif isinstance(error, commands.NotOwner):
-#        await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
-#    elif isinstance(error, commands.MissingRole):
-#        await ctx.send("I'm sorry, you don't seem to have the required role for that")
+@bot.event
+async def on_command_error(ctx, error):
+    if hasattr(ctx.command, "on_error"):
+        return
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please pass an argument")
+    elif isinstance(error, commands.NotOwner):
+        await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
+    elif isinstance(error, commands.MissingRole):
+        await ctx.send("I'm sorry, you don't seem to have the required role for that")
 
 
 def admin_or_me_check(ctx):
     if ctx.message.author.id == 268608466690506753:
         return True
-    elif ctx.message.author.roles == admin_role_id:
+    elif ctx.message.author.roles == 346842813687922689:
         return True
     else:
         return False
@@ -136,6 +136,27 @@ async def getpoll(ctx):
     await patreon_poll.get_poll(bot)
 
 
+@bot.command(aliases=["w"])
+async def wiki(ctx, *, query):
+    url = f"https://thewanderinginn.fandom.com/api/v1/Search/List?query={query}&limit=1&minArticleQuality=0"
+    async with aiohttp.ClientSession() as session:
+        html = await patreon_poll.fetch(session, url)
+        json_data = json.loads(html)
+    try:
+        await ctx.send(
+            f"Results from search **{query}**\n{json_data['items'][0]['title']} - {json_data['items'][0]['url']}")
+    except IndexError:
+        url = f"https://thewanderinginn.fandom.com/api/v1/SearchSuggestions/List?query={query}"
+        async with aiohttp.ClientSession() as session:
+            html = await patreon_poll.fetch(session, url)
+            json_data = json.loads(html)
+        try:
+            await ctx.send(
+                f"Sorry, i could not find a article matching that search. You could try: {json_data['items'][0]['title']}")
+        except IndexError:
+            await ctx.send(f"Sorry, i could not find a article matching that search.")
+
+
 @bot.command()
 async def ping(ctx):
     await ctx.send(f"{round(bot.latency * 1000)} ms")
@@ -183,9 +204,15 @@ async def help(ctx):
                                                  "\nNote: The image needs to be an embed")
     embed.add_field(name="!setgallery", value="Use: !setgallery [channel id]\n"
                                               "sets which channel !gallery should post in", inline=False)
-    embed.add_field(name="!setmementos", value="Use: !setmementos [channel id]\n" "sets which channel !mementos should post in", inline=False)
-    embed.add_field(name="!poll [!p]", value="Use: !poll, !poll [id]\nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.")
-    embed.add_field(name="!polllist [!pl]", value="Use: !polllist, !polllist [year]\nShows the list of ids of all polls sorted by year.")
+    embed.add_field(name="!setmementos",
+                    value="Use: !setmementos [channel id]\n" "sets which channel !mementos should post in",
+                    inline=False)
+    embed.add_field(name="!poll [!p]",
+                    value="Use: !poll, !poll [id]\nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.")
+    embed.add_field(name="!polllist [!pl]",
+                    value="Use: !polllist, !polllist [year]\nShows the list of ids of all polls sorted by year.")
+    embed.add_field(name="!wiki [!w]",
+                    value="Use: !wiki Toren, !w Niers\nSearches the TWI wiki for a matching article.")
     await ctx.send(embed=embed)
 
 
