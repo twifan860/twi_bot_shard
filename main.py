@@ -168,7 +168,7 @@ async def link(ctx, user_input):
 
 @bot.command()
 async def links(ctx):
-    query_r = await bot.pg_con.fetch("SELECT title FROM tags")
+    query_r = await bot.pg_con.fetch("SELECT title FROM tags ORDER BY title")
     message = ""
     for tags in query_r:
         message = f"{message} `{tags['tag']}`"
@@ -198,7 +198,7 @@ async def delink(ctx, title):
 
 @bot.command()
 async def tags(ctx):
-    query_r = await bot.pg_con.fetch("SELECT tag FROM tags")
+    query_r = await bot.pg_con.fetch("SELECT tag FROM tags ORDER BY tag")
     message = ""
     for tags in query_r:
         message = f"{message} `{tags['tag']}`"
@@ -210,7 +210,7 @@ async def tag(ctx, user_input):
     query_r = await bot.pg_con.fetch("SELECT title FROM tags WHERE lower(tag) = lower($1)", user_input)
     message = ""
     for tags in query_r:
-        message = f"{message}`{tags['title']}`\n"
+        message = f"{message}\n`{tags['title']}`"
     await ctx.send(f"links: {message}")
 
 
