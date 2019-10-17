@@ -166,6 +166,14 @@ async def link(ctx, user_input):
         await ctx.send(f"I could not find a link with the title **{user_input}**")
 
 
+@bot.command()
+async def links(ctx):
+    query_r = await bot.pg_con.fetch("SELECT title FROM tags")
+    message = ""
+    for tags in query_r:
+        message = f"{message} `{tags['tag']}`"
+    await ctx.send(f"Tags: {message}")
+
 
 @bot.command()
 async def addlink(ctx, content, title, input_tag=None):
@@ -263,6 +271,7 @@ async def help(ctx):
     embed.add_field(name="!wiki [!w]",
                     value="Use: !wiki Toren, !w Niers\nSearches the TWI wiki for a matching article.")
     embed.add_field(name="!link", value="Use: !link [title]\nPosts the link with the given name.")
+    embed.add_field(name="!links", value="Use: !links\nView all links.")
     embed.add_field(name="!addlink",
                     value="Use: !link [url][title][tag]\nAdds a link with the given name to the given url and tag")
     embed.add_field(name="!delink", value="Use: !delink [title]\nDeletes a link with the given name")
