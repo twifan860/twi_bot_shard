@@ -295,8 +295,11 @@ async def help(ctx):
                     value="Use: !link [url][title][tag]\nAdds a link with the given name to the given url and tag",
                     inline=False)
     embed.add_field(name="!delink", value="Use: !delink [title]\nDeletes a link with the given name", inline=False)
-    embed.add_field(name="!tags", value="Use !tags\nSee all available tags", inline=False)
-    embed.add_field(name="!tag", value="Use !tag [tag]\nView all links that got a certain tag", inline=False)
+    embed.add_field(name="!tags", value="Use: !tags\nSee all available tags", inline=False)
+    embed.add_field(name="!tag", value="Use: !tag [tag]\nView all links that got a certain tag", inline=False)
+    embed.add_field(name="!find [f]", value="Use: !find [query]\n"
+                                            "Does a google search on wanderinginn.com and returns the results",
+                    inline=False)
     await ctx.send(embed=embed)
 
 
