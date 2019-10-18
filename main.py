@@ -6,6 +6,7 @@ import aiohttp
 import asyncpg
 import discord
 from discord.ext import commands, tasks
+from googleapiclient.discovery import build
 
 import gallery
 import patreon_poll
@@ -212,6 +213,22 @@ async def tag(ctx, user_input):
     for tags in query_r:
         message = f"{message}\n`{tags['title']}`"
     await ctx.send(f"links: {message}")
+
+
+def google_search(search_term, api_key, cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=api_key)
+    res = service.cse().list(q=search_term, cx=cse_id, num=4, **kwargs).execute()
+    return res
+
+
+@bot.command(aliases=["f"])
+async def find(ctx, query):
+    results = google_search(query, secrets.google_api_key, secrets.google_cse_id)
+    embed = discord.Embed(title="Search", description=f"**{query}**")
+    for result in results['items']:
+        embed.add_field(name=result['title'],
+                        value=f"{result['snippet']}\n{result['link']}")
+    await ctx.send(embed=embed)
 
 
 @bot.command()
