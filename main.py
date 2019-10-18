@@ -222,7 +222,7 @@ def google_search(search_term, api_key, cse_id, **kwargs):
 
 
 @bot.command(aliases=["f"])
-async def find(ctx, query):
+async def find(ctx, *, query):
     results = google_search(query, secrets.google_api_key, secrets.google_cse_id)
     embed = discord.Embed(title="Search", description=f"**{query}**")
     for result in results['items']:
