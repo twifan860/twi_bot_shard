@@ -217,11 +217,16 @@ async def tag(ctx, user_input):
 
 def google_search(search_term, api_key, cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
-    res = service.cse().list(q=search_term, cx=cse_id, num=4, **kwargs).execute()
+    res = service.cse().list(q=search_term, cx=cse_id, num=5, **kwargs).execute()
     return res
 
 
+async def is_bot_channel(ctx):
+    return ctx.channel.id == 361694671631548417
+
+
 @bot.command(aliases=["f"])
+@commands.check(is_bot_channel)
 async def find(ctx, *, query):
     results = google_search(query, secrets.google_api_key, secrets.google_cse_id)
     embed = discord.Embed(title="Search", description=f"**{query}**")
@@ -229,6 +234,12 @@ async def find(ctx, *, query):
         embed.add_field(name=result['title'],
                         value=f"{result['snippet']}\n{result['link']}")
     await ctx.send(embed=embed)
+
+
+@find.error
+async def isError(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("Please use this command in #bots only. It takes up quite a bit of space.")
 
 
 @bot.command()
