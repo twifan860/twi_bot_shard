@@ -239,7 +239,7 @@ async def find(ctx, *, query):
 @find.error
 async def isError(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        await ctx.send("Please use this command in #bots only. It takes up quite a bit of space.")
+        await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
 
 
 @bot.command()
