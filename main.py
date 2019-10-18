@@ -311,7 +311,7 @@ async def help(ctx):
     embed.add_field(name="!find [f]", value="Use: !find [query]\n"
                                             "Does a google search on wanderinginn.com and returns the results",
                     inline=False)
-    await ctx.send(embed=embed)
+    await ctx.author.send(embed=embed)
 
 
 bot.loop.run_until_complete(create_db_pool())
