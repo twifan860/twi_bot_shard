@@ -36,7 +36,6 @@ async def get_poll(bot):
                         closes_at_converted = None
                     title = json_data2['data']['attributes']['question_text']
                     if closes_at_converted is None or closes_at_converted < datetime.now(timezone.utc):
-                        meta = await bot.pg_con.fetch("SELECT COUNT (*) FROM poll")
                         await bot.pg_con.execute(
                             "INSERT INTO poll(api_url, poll_url, id, start_date, expire_date, title, total_votes, expired, num_options)"
                             "VALUES ($1,$2,$3,$4,$5,$6,$7, TRUE, $8)",
@@ -74,11 +73,11 @@ async def get_poll(bot):
             break
 
 
-async def p_poll(poll, ctx, bot):
-    for test_poll in poll:
-        if not test_poll['expired']:
+async def p_poll(polls, ctx, bot):
+    for poll in polls:
+        if not poll['expired']:
             async with aiohttp.ClientSession() as session:
-                html = await fetch(session, test_poll["api_url"])
+                html = await fetch(session, poll["api_url"])
                 json_data = json.loads(html)
             options = []
             for i in range(0, len(json_data['data']['relationships']['choices']['data'])):
@@ -89,15 +88,15 @@ async def p_poll(poll, ctx, bot):
         else:
             options = await bot.pg_con.fetch(
                 "SELECT option_text, num_votes FROM poll_option WHERE poll_id = $1 ORDER BY num_votes DESC",
-                test_poll['id'])
-        time_left = test_poll["expire_date"] - datetime.now(timezone.utc)
+                poll['id'])
+        time_left = poll["expire_date"] - datetime.now(timezone.utc)
         hours = int(((time_left.total_seconds() // 3600) % 24))
         embed = discord.Embed(title="Poll", color=discord.Color(0x3cd63d),
-                              description=f"**[{test_poll['title']}]({test_poll['poll_url']})**")
+                              description=f"**[{poll['title']}]({poll['poll_url']})**")
         embed.set_footer(
-            text=f"Poll started at {test_poll['start_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
-                 f"and closes at {test_poll['expire_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
-                 f"({time_left.days} days and {hours} hours left)")
+            text=f"Poll started at {poll['start_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
+                 f"and {'closed' if poll['expired'] else 'closes'} at {poll['expire_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
+                 f"({time_left.days} days and {hours} hours {'ago' if poll['expired'] else 'left'})")
         for option in options:
             embed.add_field(name=option[0], value=option[1], inline=False)
         await ctx.send(embed=embed)
