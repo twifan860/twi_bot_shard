@@ -106,7 +106,7 @@ async def setmementos(ctx, mementos_id: int):
 
 
 @bot.command(aliases=["p"])
-@commands.cooldown(2, 00, commands.BucketType.channel)
+@commands.cooldown(1, 120, commands.BucketType.channel)
 async def poll(ctx, x=None):
     active_polls = await bot.pg_con.fetch("SELECT * FROM poll WHERE expire_date > now()")
     if active_polls and x is None:
@@ -120,7 +120,7 @@ async def poll(ctx, x=None):
 
 
 @bot.command(aliases=["pl"])
-@commands.cooldown(2, 00, commands.BucketType.channel)
+@commands.cooldown(1, 120, commands.BucketType.channel)
 async def polllist(ctx, year=datetime.now(timezone.utc).year):
     polls_year = await bot.pg_con.fetch(
         "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY poll.start_date ASC) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
@@ -320,6 +320,11 @@ async def help(ctx):
                     inline=False)
     await ctx.author.send(embed=embed)
 
+
+# TODO: Allow to switch page (show more results) on !find
+# TODO: Add score tracker on !trivia?
+# TODO: Rewrite !help - Look at dragons help message.
+# TODO:
 
 bot.loop.run_until_complete(create_db_pool())
 bot.run(secrets.bot_token)
