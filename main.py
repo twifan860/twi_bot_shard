@@ -57,6 +57,8 @@ async def on_command_error(ctx, error):
         await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
     elif isinstance(error, commands.MissingRole):
         await ctx.send("I'm sorry, you don't seem to have the required role for that")
+    elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(f"That command is on cooldown, please wait a bit.")
 
 
 def admin_or_me_check(ctx):
