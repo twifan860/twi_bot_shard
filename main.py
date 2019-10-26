@@ -18,16 +18,6 @@ bot = commands.Bot(
     case_insensitive=True, )
 bot.remove_command("help")
 
-status = cycle(["Killing the mages of Wistram",
-                "Cleaning up a mess",
-                "Keeping secrets",
-                "Hiding corpses",
-                "Mending Pirateaba's broken hands",
-                "Longing for Zelkyr",
-                "Banishing Chimera to #debates",
-                "Hoarding knowledge",
-                "Dusting off priceless artifacts"])
-
 
 @bot.event
 async def on_ready():
@@ -38,6 +28,18 @@ async def on_ready():
 
 async def create_db_pool():
     bot.pg_con = await asyncpg.create_pool(database="testDB", user="pi", password=secrets.DB_pass)
+
+
+status = cycle(["Killing the mages of Wistram",
+                "Cleaning up a mess",
+                "Keeping secrets",
+                "Hiding corpses",
+                "Mending Pirateaba's broken hands",
+                "Longing for Zelkyr",
+                "Banishing Chimera to #debates",
+                "Hoarding knowledge",
+                "Dusting off priceless artifacts",
+                "Praying for Mating Rituals 2"])
 
 
 @tasks.loop(seconds=10)
@@ -104,6 +106,7 @@ async def setmementos(ctx, mementos_id: int):
 
 
 @bot.command(aliases=["p"])
+@commands.cooldown(2, 00, commands.BucketType.channel)
 async def poll(ctx, x=None):
     active_polls = await bot.pg_con.fetch("SELECT * FROM poll WHERE expire_date > now()")
     if active_polls and x is None:
@@ -117,6 +120,7 @@ async def poll(ctx, x=None):
 
 
 @bot.command(aliases=["pl"])
+@commands.cooldown(2, 00, commands.BucketType.channel)
 async def polllist(ctx, year=datetime.now(timezone.utc).year):
     polls_year = await bot.pg_con.fetch(
         "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY poll.start_date ASC) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
@@ -229,11 +233,14 @@ async def is_bot_channel(ctx):
 @commands.check(is_bot_channel)
 async def find(ctx, *, query):
     results = google_search(query, secrets.google_api_key, secrets.google_cse_id)
-    embed = discord.Embed(title="Search", description=f"**{query}**")
-    for result in results['items']:
-        embed.add_field(name=result['title'],
-                        value=f"{result['snippet']}\n{result['link']}")
-    await ctx.send(embed=embed)
+    if results['searchInformation']['totalResults'] == "0":
+        await ctx.send("I could not find anything that matches your search.")
+    else:
+        embed = discord.Embed(title="Search", description=f"**{query}**")
+        for result in results['items']:
+            embed.add_field(name=result['title'],
+                            value=f"{result['snippet']}\n{result['link']}")
+        await ctx.send(embed=embed)
 
 
 @find.error
