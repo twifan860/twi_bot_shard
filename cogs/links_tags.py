@@ -2,14 +2,14 @@ import asyncpg
 from discord.ext import commands
 
 
-class LinkTags(commands.Cog, name="Links commands"):
+class LinkTags(commands.Cog, name="Links"):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(
-        name="link",
+        name="Link",
         description="Posts the link with the given name.",
-        usage='[title]',
+        usage='[Title]',
         hidden=False,
     )
     async def link(self, ctx, user_input):
@@ -21,7 +21,7 @@ class LinkTags(commands.Cog, name="Links commands"):
             await ctx.send(f"I could not find a link with the title **{user_input}**")
 
     @commands.command(
-        name="links",
+        name="Links",
         description="View all links.",
         hidden=False,
     )
@@ -33,7 +33,7 @@ class LinkTags(commands.Cog, name="Links commands"):
         await ctx.send(f"Tags: {message}")
 
     @commands.command(
-        name="addlink",
+        name="AddLink",
         description="Adds a link with the given name to the given url and tag",
         usage='[url][title][tag]',
         hidden=False,
@@ -49,10 +49,10 @@ class LinkTags(commands.Cog, name="Links commands"):
             await ctx.send("That name is already in the list.")
 
     @commands.command(
-        name="delink",
+        name="Delink",
         description="Deletes a link with the given name",
-        aliases=['removelink', 'deletelink'],
-        usage='[title]',
+        aliases=['RemoveLink', 'DeleteLink'],
+        usage='[Title]',
         hidden=False,
     )
     async def delete_link(self, ctx, title):
@@ -63,9 +63,9 @@ class LinkTags(commands.Cog, name="Links commands"):
             await ctx.send(f"I could not find a link with the title: **{title}**")
 
     @commands.command(
-        name="tags",
+        name="Tags",
         description="See all available tags",
-        aliases=['listtags', 'showtags'],
+        aliases=['ListTags', 'ShowTags'],
         hidden=False,
     )
     async def tags(self, ctx):
@@ -76,10 +76,10 @@ class LinkTags(commands.Cog, name="Links commands"):
         await ctx.send(f"Tags: {message}")
 
     @commands.command(
-        name="tag",
+        name="Tag",
         description="View all links that got a certain tag",
-        aliases=['showtag'],
-        usage='[tag]',
+        aliases=['ShowTag'],
+        usage='[Tag]',
         hidden=False,
     )
     async def tag(self, ctx, user_input):

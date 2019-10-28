@@ -2,12 +2,12 @@ import discord
 from discord.ext import commands
 
 
-class OtherCogs(commands.Cog, name="Other commands"):
+class OtherCogs(commands.Cog, name="Other"):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(
-        name="ping",
+        name="Ping",
         description="Gives the latency of the bot",
         aliases=['latency', 'delay'],
         hidden=False,
@@ -16,10 +16,10 @@ class OtherCogs(commands.Cog, name="Other commands"):
         await ctx.send(f"{round(self.bot.latency * 1000)} ms")
 
     @commands.command(
-        name="avatar",
+        name="Avatar",
         description="Posts the full version of a users avatar, or self if non provided.",
-        aliases=['av'],
-        usage='[user]',
+        aliases=['Av'],
+        usage='[@User]',
         hidden=False,
     )
     async def av(self, ctx, *, member: discord.Member = None):
@@ -31,10 +31,10 @@ class OtherCogs(commands.Cog, name="Other commands"):
         await ctx.send(embed=embed)
 
     @commands.command(
-        name="info",
+        name="Info",
         description="Gives the account information of a user, or self if non provided.",
-        aliases=['stats', 'information'],
-        usage='[user]',
+        aliases=['Stats', 'Information'],
+        usage='[@user]',
         hidden=False,
     )
     async def info(self, ctx, *, member: discord.Member = None):
@@ -46,7 +46,7 @@ class OtherCogs(commands.Cog, name="Other commands"):
         embed.set_thumbnail(url=member.avatar_url)
         embed.add_field(name="Account created at", value=member.created_at.strftime("%d-%m-%Y @ %H:%M:%S"))
         embed.add_field(name="Joined server", value=member.joined_at.strftime("%d-%m-%Y @ %H:%M:%S"))
-        embed.add_field(name="id", value=member.id)
+        embed.add_field(name="Id", value=member.id)
         embed.add_field(name="Color", value=member.color)
         roles = ""
         for role in reversed(member.roles):

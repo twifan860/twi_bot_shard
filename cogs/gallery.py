@@ -24,10 +24,10 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
         self.bot = bot
 
     @commands.command(
-        name="gallery",
+        name="Gallery",
         description="Adds a image to #gallery\nEx: !gallery 123123123 a nice image",
         aliases=['g'],
-        usage='[Msg id][title]',
+        usage='[Msg Id][Title]',
         hidden=False,
     )
     @commands.check(admin_or_me_check)
@@ -38,10 +38,10 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
         await add_to_gallery(ctx, msg_id, title, channel)
 
     @commands.command(
-        name="mementos",
+        name="Mementos",
         description="Adds an image to #mementos",
         aliases=['m'],
-        usage='[message id] [title]\nEx: !mementos 123123123 a nice meme',
+        usage='[message Id] [title]\nEx: !mementos 123123123 A nice meme',
         hidden=False,
     )
     @commands.check(admin_or_me_check)
@@ -52,7 +52,7 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
         await add_to_gallery(ctx, msg_id, title, channel)
 
     @commands.command(
-        name="setgallery",
+        name="SetGallery",
         hidden=True
     )
     @commands.check(admin_or_me_check)
@@ -66,7 +66,7 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
                                       "gallery")
 
     @commands.command(
-        name="setmementos",
+        name="SetMementos",
         hidden=True
     )
     @commands.check(admin_or_me_check)

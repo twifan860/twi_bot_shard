@@ -48,18 +48,18 @@ async def status_loop():
     await bot.change_presence(activity=discord.Game(next(status)))
 
 
-# @bot.event
-# async def on_command_error(ctx, error):
-#     if hasattr(ctx.command, "on_error"):
-#         return
-#     elif isinstance(error, commands.MissingRequiredArgument):
-#         await ctx.send("Please pass an argument")
-#     elif isinstance(error, commands.NotOwner):
-#         await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
-#     elif isinstance(error, commands.MissingRole):
-#         await ctx.send("I'm sorry, you don't seem to have the required role for that")
-#     elif isinstance(error, commands.CommandOnCooldown):
-#         await ctx.send(f"That command is on cooldown, please wait a bit.")
+@bot.event
+async def on_command_error(ctx, error):
+    if hasattr(ctx.command, "on_error"):
+        return
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please pass an argument")
+    elif isinstance(error, commands.NotOwner):
+        await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
+    elif isinstance(error, commands.MissingRole):
+        await ctx.send("I'm sorry, you don't seem to have the required role for that")
+    elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(f"That command is on cooldown, please wait a bit.")
 
 
 # TODO: Allow to switch page (show more results) on !find

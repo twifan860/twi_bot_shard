@@ -19,12 +19,12 @@ async def is_bot_channel(ctx):
     return ctx.channel.id == 361694671631548417
 
 
-class TwiCog(commands.Cog, name="The wandering inn related commands"):
+class TwiCog(commands.Cog, name="The Wandering Inn"):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(
-        name="password",
+        name="Password",
         description="Provides information for patreons on how to get the chapter password",
         aliases=['pw'],
         hidden=False,
@@ -39,10 +39,9 @@ class TwiCog(commands.Cog, name="The wandering inn related commands"):
         await ctx.send("3. You will get an email with the password every time pirate posts it.")
 
     @commands.command(
-        name="connectDiscord",
+        name="ConnectDiscord",
         description="Provides information for patreons on how to connect their patreon account to discord.",
         aliases=['cd'],
-        usage='',
         hidden=False,
     )
     async def connect_discord(self, ctx):
@@ -50,7 +49,7 @@ class TwiCog(commands.Cog, name="The wandering inn related commands"):
             "Check this link: <https://support.patreon.com/hc/en-us/articles/212052266-How-do-I-receive-my-Discord-role>")
 
     @commands.command(
-        name="wiki",
+        name="Wiki",
         description="Searches the The Wandering Inn wiki for a matching article.",
         aliases=['w'],
         usage='[Query]',
@@ -76,9 +75,9 @@ class TwiCog(commands.Cog, name="The wandering inn related commands"):
                 await ctx.send(f"Sorry, i could not find a article matching that search.")
 
     @commands.command(
-        name="find",
+        name="Find",
         description="Does a google search on 'Wanderinginn.com' and returns the results",
-        aliases=['f'],
+        aliases=['F'],
         usage='[Query]',
         hidden=False,
     )

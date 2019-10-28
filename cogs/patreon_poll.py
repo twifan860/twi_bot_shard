@@ -123,15 +123,15 @@ async def searchPoll(bot, query):
     return embed
 
 
-class PollCog(commands.Cog, name="Poll related commands"):
+class PollCog(commands.Cog, name="Poll"):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(
-        name="poll",
+        name="Poll",
         description="Returns a poll by it's given id. \nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.",
-        aliases=['p'],
-        usage='[id]',
+        aliases=['P'],
+        usage='[Id]',
         hidden=False,
     )
     @commands.cooldown(1, 120, commands.BucketType.channel)
@@ -147,16 +147,17 @@ class PollCog(commands.Cog, name="Poll related commands"):
             await p_poll(value, ctx, self.bot)
 
     @commands.command(
-        name="polllist",
+        name="PollList",
         description="Shows the list of poll ids sorted by year. Shows current year if no year given.",
-        aliases=['pl', 'listpolls'],
-        usage='[year]',
+        aliases=['pl', 'ListPolls'],
+        usage='[Year]',
         hidden=False,
     )
     @commands.check(is_bot_channel)
     async def poll_list(self, ctx, year=datetime.now(timezone.utc).year):
         polls_year = await self.bot.pg_con.fetch(
-            "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY poll.start_date) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
+            "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY "
+            "poll.start_date) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
             year)
         if not polls_year:
             await ctx.send("Sorry there were no polls that year that i could find :(")
@@ -173,7 +174,7 @@ class PollCog(commands.Cog, name="Poll related commands"):
             await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
 
     @commands.command(
-        name="getpoll",
+        name="GetPoll",
         hidden=True
     )
     @commands.is_owner()
@@ -181,8 +182,8 @@ class PollCog(commands.Cog, name="Poll related commands"):
         await get_poll(self.bot)
 
     @commands.command(
-        name="findpoll",
-        aliases=['fp', 'searchpoll'],
+        name="FindPoll",
+        aliases=['fp', 'SearchPoll'],
         description="Searches poll questions for a given query",
         usage='[Query]',
         hidden=False
