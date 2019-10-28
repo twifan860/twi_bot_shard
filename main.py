@@ -90,6 +90,23 @@ async def m(ctx, msg_id, *, title):
     await gallery.add_to_gallery(ctx, msg_id, title, channel)
 
 
+@bot.command(aliases=["pw"])
+async def password(ctx):
+    await ctx.send("3 ways.\n"
+                   "1. Link discord to patreon and go to <#346842161704075265> and check pins.\n"
+                   "2. go to <https://www.patreon.com/pirateaba> and check the latest posts. It has the password.")
+    embed = discord.Embed(title="password")
+    embed.set_image(url="https://cdn.discordapp.com/attachments/362248294849576960/638350570972774440/unknown.png")
+    await ctx.send(embed=embed)
+    await ctx.send("3. You will get an email with the password every time pirate posts it.")
+
+
+@bot.command(aliases=["cd"])
+async def connectdiscord(ctx):
+    await ctx.send(
+        "Check this link: <https://support.patreon.com/hc/en-us/articles/212052266-How-do-I-receive-my-Discord-role>")
+
+
 @bot.command()
 @commands.check(admin_or_me_check)
 async def setgallery(ctx, gallery_id: int):
