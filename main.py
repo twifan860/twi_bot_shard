@@ -70,6 +70,9 @@ def admin_or_me_check(ctx):
         return False
 
 
+async def is_bot_channel(ctx):
+    return ctx.channel.id == 361694671631548417
+
 @bot.command(aliases=["gallery"])
 @commands.check(admin_or_me_check)
 async def g(ctx, msg_id, *, title):
@@ -122,7 +125,7 @@ async def poll(ctx, x=None):
 
 
 @bot.command(aliases=["pl"])
-@commands.cooldown(1, 120, commands.BucketType.channel)
+@commands.check(is_bot_channel)
 async def polllist(ctx, year=datetime.now(timezone.utc).year):
     polls_year = await bot.pg_con.fetch(
         "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY poll.start_date ASC) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
@@ -137,10 +140,21 @@ async def polllist(ctx, year=datetime.now(timezone.utc).year):
         await ctx.send(embed=embed)
 
 
+@polllist.error
+async def isError(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
+
+
 @bot.command()
 @commands.is_owner()
 async def getpoll(ctx):
     await patreon_poll.get_poll(bot)
+
+
+@bot.command()
+async def findpoll(ctx, *, query):
+    await ctx.send(embed=await patreon_poll.searchPoll(bot, query))
 
 
 @bot.command(aliases=["w"])
@@ -226,9 +240,6 @@ def google_search(search_term, api_key, cse_id, **kwargs):
     res = service.cse().list(q=search_term, cx=cse_id, num=5, **kwargs).execute()
     return res
 
-
-async def is_bot_channel(ctx):
-    return ctx.channel.id == 361694671631548417
 
 
 @bot.command(aliases=["f"])

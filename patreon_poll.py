@@ -100,3 +100,20 @@ async def p_poll(polls, ctx, bot):
         for option in options:
             embed.add_field(name=option[0], value=option[1], inline=False)
         await ctx.send(embed=embed)
+
+
+async def searchPoll(bot, query):
+    test = await bot.pg_con.fetch("SELECT poll_id, option_text FROM poll_option WHERE tokens @@ to_tsquery($1)", query)
+    embed = discord.Embed(title="Poll search results", color=discord.Color(0x3cd63d),
+                          description=f"Query: **{query}**")
+    for results in test:
+        print()
+        test2 = await bot.pg_con.fetch("SELECT * FROM poll WHERE id = $1", results['poll_id'])
+        print(test2)
+        polls_year = await bot.pg_con.fetchrow(
+            "select title, poll_number from (SELECT poll.title, poll.id, row_number() OVER (ORDER BY poll.start_date ASC) as poll_number from poll) as numbered_polls where id = $1",
+            results['poll_id'])
+        embed.add_field(name=polls_year['title'], value=f"{polls_year['poll_number']} - {results['option_text']}",
+                        inline=False)
+        print(polls_year)
+    return embed
