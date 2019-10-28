@@ -103,7 +103,8 @@ async def p_poll(polls, ctx, bot):
 
 
 async def searchPoll(bot, query):
-    test = await bot.pg_con.fetch("SELECT poll_id, option_text FROM poll_option WHERE tokens @@ to_tsquery($1)", query)
+    test = await bot.pg_con.fetch("SELECT poll_id, option_text FROM poll_option WHERE tokens @@ plainto_tsquery($1)",
+                                  query)
     embed = discord.Embed(title="Poll search results", color=discord.Color(0x3cd63d),
                           description=f"Query: **{query}**")
     for results in test:

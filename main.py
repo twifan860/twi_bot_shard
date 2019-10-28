@@ -152,7 +152,7 @@ async def getpoll(ctx):
     await patreon_poll.get_poll(bot)
 
 
-@bot.command()
+@bot.command(aliases=["fp"])
 async def findpoll(ctx, *, query):
     await ctx.send(embed=await patreon_poll.searchPoll(bot, query))
 
