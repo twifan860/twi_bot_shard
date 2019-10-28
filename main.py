@@ -10,14 +10,15 @@ import secrets
 
 bot = commands.Bot(
     command_prefix='!',
-    description="The wandering inn bot",
-    case_insensitive=True, )
+    description="The Wandering Inn helper",
+    case_insensitive=True)
 
 cogs = ['cogs.gallery', 'cogs.links_tags', 'cogs.patreon_poll', 'cogs.twi', 'cogs.owner', 'cogs.other']
 
 
 @bot.event
 async def on_ready():
+    status_loop.start()
     print(f'Logged in as: {bot.user.name}\nVersion: {discord.__version__}\n')
     for extension in cogs:
         try:

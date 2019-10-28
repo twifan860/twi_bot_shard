@@ -19,7 +19,7 @@ def admin_or_me_check(ctx):
         return False
 
 
-class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
+class GalleryCog(commands.Cog, name="Gallery & Mementos"):
     def __init__(self, bot):
         self.bot = bot
 
