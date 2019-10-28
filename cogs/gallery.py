@@ -25,7 +25,9 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
 
     @commands.command(
         name="Gallery",
-        description="Adds a image to #gallery\nEx: !gallery 123123123 a nice image",
+        brief="Adds a image to #gallery",
+        help="'!gallery 123123123 a nice image A nice image' will add a image with the id '123123123' called 'A nice image' to #gallery\n"
+             "Get the id of the image by right clicking it and selecting 'Copy id'",
         aliases=['g'],
         usage='[Msg Id][Title]',
         hidden=False,
@@ -39,7 +41,7 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
 
     @commands.command(
         name="Mementos",
-        description="Adds an image to #mementos",
+        brief="Adds an image to #mementos",
         aliases=['m'],
         usage='[message Id] [title]\nEx: !mementos 123123123 A nice meme',
         hidden=False,
@@ -52,8 +54,11 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
         await add_to_gallery(ctx, msg_id, title, channel)
 
     @commands.command(
-        name="SetGallery",
-        hidden=True
+        name="setGallery",
+        brief="Set what channel !gallery posts to",
+        aliases=['sg'],
+        usage='[Channel id]',
+        hidden=False,
     )
     @commands.check(admin_or_me_check)
     async def set_gallery(self, ctx, gallery_id: int):
@@ -67,7 +72,10 @@ class GalleryCog(commands.Cog, name="Gallery and Mementos Commands"):
 
     @commands.command(
         name="SetMementos",
-        hidden=True
+        brief="Set what channel !mementos posts to",
+        aliases=['sm'],
+        usage='[Channel id]',
+        hidden=False,
     )
     @commands.check(admin_or_me_check)
     async def set_mementos(self, ctx, mementos_id: int):

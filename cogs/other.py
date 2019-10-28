@@ -8,7 +8,7 @@ class OtherCogs(commands.Cog, name="Other"):
 
     @commands.command(
         name="Ping",
-        description="Gives the latency of the bot",
+        brief="Gives the latency of the bot",
         aliases=['latency', 'delay'],
         hidden=False,
     )
@@ -17,7 +17,7 @@ class OtherCogs(commands.Cog, name="Other"):
 
     @commands.command(
         name="Avatar",
-        description="Posts the full version of a users avatar, or self if non provided.",
+        brief="Posts the full version of a avatar",
         aliases=['Av'],
         usage='[@User]',
         hidden=False,
@@ -32,7 +32,7 @@ class OtherCogs(commands.Cog, name="Other"):
 
     @commands.command(
         name="Info",
-        description="Gives the account information of a user, or self if non provided.",
+        brief="Gives the account information of a user.",
         aliases=['Stats', 'Information'],
         usage='[@user]',
         hidden=False,

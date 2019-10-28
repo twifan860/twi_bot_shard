@@ -25,7 +25,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
 
     @commands.command(
         name="Password",
-        description="Provides information for patreons on how to get the chapter password",
+        brief="Information for patreons on how to get the chapter password",
         aliases=['pw'],
         hidden=False,
     )
@@ -40,7 +40,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
 
     @commands.command(
         name="ConnectDiscord",
-        description="Provides information for patreons on how to connect their patreon account to discord.",
+        brief="Information for patreons on how to connect their patreon account to discord.",
         aliases=['cd'],
         hidden=False,
     )
@@ -50,7 +50,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
 
     @commands.command(
         name="Wiki",
-        description="Searches the The Wandering Inn wiki for a matching article.",
+        brief="Searches the The Wandering Inn wiki for a matching article.",
         aliases=['w'],
         usage='[Query]',
         hidden=False,
@@ -76,7 +76,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
 
     @commands.command(
         name="Find",
-        description="Does a google search on 'Wanderinginn.com' and returns the results",
+        brief="Does a google search on 'Wanderinginn.com' and returns the results",
         aliases=['F'],
         usage='[Query]',
         hidden=False,

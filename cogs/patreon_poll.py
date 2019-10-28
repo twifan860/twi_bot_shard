@@ -119,7 +119,6 @@ async def searchPoll(bot, query):
             results['poll_id'])
         embed.add_field(name=polls_year['title'], value=f"{polls_year['poll_number']} - {results['option_text']}",
                         inline=False)
-        print(polls_year)
     return embed
 
 
@@ -129,10 +128,13 @@ class PollCog(commands.Cog, name="Poll"):
 
     @commands.command(
         name="Poll",
-        description="Returns a poll by it's given id. \nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.",
-        aliases=['P'],
+        brief="Posts the latest poll or a specific poll",
+        description="Returns a poll by it's given id.",
+        aliases=['p'],
         usage='[Id]',
-        hidden=False,
+        help="Shows the current active polls if no id is given. If there is no active poll, the latest poll is shown."
+             "\nFind the poll id via !PollList or !findPoll",
+        hidden=False
     )
     @commands.cooldown(1, 120, commands.BucketType.channel)
     async def poll(self, ctx, x=None):
@@ -148,10 +150,11 @@ class PollCog(commands.Cog, name="Poll"):
 
     @commands.command(
         name="PollList",
-        description="Shows the list of poll ids sorted by year. Shows current year if no year given.",
+        brief="Shows the list of poll ids sorted by year.",
+        description="",
         aliases=['pl', 'ListPolls'],
         usage='[Year]',
-        hidden=False,
+        hidden=False
     )
     @commands.check(is_bot_channel)
     async def poll_list(self, ctx, year=datetime.now(timezone.utc).year):
@@ -184,7 +187,7 @@ class PollCog(commands.Cog, name="Poll"):
     @commands.command(
         name="FindPoll",
         aliases=['fp', 'SearchPoll'],
-        description="Searches poll questions for a given query",
+        brief="Searches poll questions for a given query",
         usage='[Query]',
         hidden=False
     )

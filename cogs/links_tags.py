@@ -8,7 +8,7 @@ class LinkTags(commands.Cog, name="Links"):
 
     @commands.command(
         name="Link",
-        description="Posts the link with the given name.",
+        brief="Posts the link with the given name.",
         usage='[Title]',
         hidden=False,
     )
@@ -22,7 +22,7 @@ class LinkTags(commands.Cog, name="Links"):
 
     @commands.command(
         name="Links",
-        description="View all links.",
+        brief="View all links.",
         hidden=False,
     )
     async def links(self, ctx):
@@ -34,7 +34,7 @@ class LinkTags(commands.Cog, name="Links"):
 
     @commands.command(
         name="AddLink",
-        description="Adds a link with the given name to the given url and tag",
+        brief="Adds a link with the given name to the given url and tag",
         usage='[url][title][tag]',
         hidden=False,
     )
@@ -50,7 +50,7 @@ class LinkTags(commands.Cog, name="Links"):
 
     @commands.command(
         name="Delink",
-        description="Deletes a link with the given name",
+        brief="Deletes a link with the given name",
         aliases=['RemoveLink', 'DeleteLink'],
         usage='[Title]',
         hidden=False,
@@ -64,7 +64,7 @@ class LinkTags(commands.Cog, name="Links"):
 
     @commands.command(
         name="Tags",
-        description="See all available tags",
+        brief="See all available tags",
         aliases=['ListTags', 'ShowTags'],
         hidden=False,
     )
@@ -77,7 +77,7 @@ class LinkTags(commands.Cog, name="Links"):
 
     @commands.command(
         name="Tag",
-        description="View all links that got a certain tag",
+        brief="View all links that got a certain tag",
         aliases=['ShowTag'],
         usage='[Tag]',
         hidden=False,
