@@ -4,6 +4,7 @@ from operator import itemgetter
 
 import aiohttp
 import discord
+from discord.ext import commands
 
 import secrets
 
@@ -11,6 +12,10 @@ import secrets
 async def fetch(session, url):
     async with session.get(url, cookies=secrets.cookies) as respons:
         return await respons.text()
+
+
+async def is_bot_channel(ctx):
+    return ctx.channel.id == 361694671631548417
 
 
 async def get_poll(bot):
@@ -103,18 +108,88 @@ async def p_poll(polls, ctx, bot):
 
 
 async def searchPoll(bot, query):
-    test = await bot.pg_con.fetch("SELECT poll_id, option_text FROM poll_option WHERE tokens @@ plainto_tsquery($1)",
-                                  query)
+    test = await bot.pg_con.fetch(
+        "SELECT poll_id, option_text FROM poll_option WHERE tokens @@ plainto_tsquery($1)",
+        query)
     embed = discord.Embed(title="Poll search results", color=discord.Color(0x3cd63d),
                           description=f"Query: **{query}**")
     for results in test:
-        print()
-        test2 = await bot.pg_con.fetch("SELECT * FROM poll WHERE id = $1", results['poll_id'])
-        print(test2)
         polls_year = await bot.pg_con.fetchrow(
-            "select title, poll_number from (SELECT poll.title, poll.id, row_number() OVER (ORDER BY poll.start_date ASC) as poll_number from poll) as numbered_polls where id = $1",
+            "select title, poll_number from (SELECT poll.title, poll.id, row_number() OVER (ORDER BY poll.start_date) as poll_number from poll) as numbered_polls where id = $1",
             results['poll_id'])
         embed.add_field(name=polls_year['title'], value=f"{polls_year['poll_number']} - {results['option_text']}",
                         inline=False)
         print(polls_year)
     return embed
+
+
+class PollCog(commands.Cog, name="Poll related commands"):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(
+        name="poll",
+        description="Returns a poll by it's given id. \nShows the current active polls if no id is given. If there is no active poll, the latest poll is shown.",
+        aliases=['p'],
+        usage='[id]',
+        hidden=False,
+    )
+    @commands.cooldown(1, 120, commands.BucketType.channel)
+    async def poll(self, ctx, x=None):
+        active_polls = await self.bot.pg_con.fetch("SELECT * FROM poll WHERE expire_date > now()")
+        if active_polls and x is None:
+            await p_poll(active_polls, ctx, self.bot)
+        else:
+            last_poll = await self.bot.pg_con.fetch("SELECT COUNT (*) FROM poll")
+            if x is None:
+                x = last_poll[0][0]
+            value = await self.bot.pg_con.fetch("SELECT * FROM poll ORDER BY id OFFSET $1 LIMIT 1", int(x) - 1)
+            await p_poll(value, ctx, self.bot)
+
+    @commands.command(
+        name="polllist",
+        description="Shows the list of poll ids sorted by year. Shows current year if no year given.",
+        aliases=['pl', 'listpolls'],
+        usage='[year]',
+        hidden=False,
+    )
+    @commands.check(is_bot_channel)
+    async def poll_list(self, ctx, year=datetime.now(timezone.utc).year):
+        polls_year = await self.bot.pg_con.fetch(
+            "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY poll.start_date) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
+            year)
+        if not polls_year:
+            await ctx.send("Sorry there were no polls that year that i could find :(")
+        else:
+            embed = discord.Embed(title="List of polls", color=discord.Color(0x3cd63d),
+                                  description=f"**{year}**")
+            for polls in polls_year:
+                embed.add_field(name=f"{polls['title']}", value=polls['poll_number'], inline=False)
+            await ctx.send(embed=embed)
+
+    @poll_list.error
+    async def isError(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
+
+    @commands.command(
+        name="getpoll",
+        hidden=True
+    )
+    @commands.is_owner()
+    async def get_poll(self, ctx):
+        await get_poll(self.bot)
+
+    @commands.command(
+        name="findpoll",
+        aliases=['fp', 'searchpoll'],
+        description="Searches poll questions for a given query",
+        usage='[Query]',
+        hidden=False
+    )
+    async def findpoll(self, ctx, *, query):
+        await ctx.send(embed=await searchPoll(self.bot, query))
+
+
+def setup(bot):
+    bot.add_cog(PollCog(bot))
