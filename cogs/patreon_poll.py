@@ -94,14 +94,20 @@ async def p_poll(polls, ctx, bot):
             options = await bot.pg_con.fetch(
                 "SELECT option_text, num_votes FROM poll_option WHERE poll_id = $1 ORDER BY num_votes DESC",
                 poll['id'])
-        time_left = poll["expire_date"] - datetime.now(timezone.utc)
-        hours = int(((time_left.total_seconds() // 3600) % 24))
         embed = discord.Embed(title="Poll", color=discord.Color(0x3cd63d),
                               description=f"**[{poll['title']}]({poll['poll_url']})**")
-        embed.set_footer(
-            text=f"Poll started at {poll['start_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
-                 f"and {'closed' if poll['expired'] else 'closes'} at {poll['expire_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
-                 f"({time_left.days} days and {hours} hours {'ago' if poll['expired'] else 'left'})")
+        if poll['expire_date'] is not None:
+            time_left = poll["expire_date"] - datetime.now(timezone.utc)
+            hours = int(((time_left.total_seconds() // 3600) % 24))
+            embed.set_footer(
+                text=f"Poll started at {poll['start_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
+                     f"and {'closed' if poll['expired'] else 'closes'} at {poll['expire_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
+                     f"({time_left.days} days and {hours} hours {'ago' if poll['expired'] else 'left'})")
+        else:
+            embed.set_footer(
+                text=f"Poll started at {poll['start_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
+                     f"And does not have a close date")
+
         for option in options:
             embed.add_field(name=option[0], value=option[1], inline=False)
         await ctx.send(embed=embed)

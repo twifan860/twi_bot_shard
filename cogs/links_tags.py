@@ -69,7 +69,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def tags(self, ctx):
-        query_r = await self.bot.pg_con.fetch("SELECT tag FROM tags ORDER BY tag")
+        query_r = await self.bot.pg_con.fetch("SELECT DISTINCT tag FROM tags ORDER BY tag")
         message = ""
         for tags in query_r:
             message = f"{message} `{tags['tag']}`"
