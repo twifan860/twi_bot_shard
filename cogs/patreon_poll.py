@@ -14,7 +14,7 @@ async def fetch(session, url):
         return await respons.text()
 
 
-async def is_bot_channel(ctx):
+def is_bot_channel(ctx):
     return ctx.channel.id == 361694671631548417
 
 
@@ -144,6 +144,8 @@ class PollCog(commands.Cog, name="Poll"):
     )
     @commands.cooldown(1, 120, commands.BucketType.channel)
     async def poll(self, ctx, x=None):
+        if is_bot_channel(ctx):
+            self.poll.reset_cooldown(ctx)
         active_polls = await self.bot.pg_con.fetch("SELECT * FROM poll WHERE expire_date > now()")
         if active_polls and x is None:
             await p_poll(active_polls, ctx, self.bot)

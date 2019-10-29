@@ -13,7 +13,7 @@ bot = commands.Bot(
     description="The Wandering Inn helper",
     case_insensitive=True)
 
-cogs = ['cogs.gallery', 'cogs.links_tags', 'cogs.patreon_poll', 'cogs.twi', 'cogs.owner', 'cogs.other']
+cogs = ['cogs.gallery', 'cogs.links_tags', 'cogs.patreon_poll', 'cogs.twi', 'cogs.owner', 'cogs.other', 'cogs.mods']
 
 
 @bot.event
