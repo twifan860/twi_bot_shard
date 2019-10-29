@@ -18,7 +18,7 @@ class ModCogs(commands.Cog):
         name="reset",
         brief="resets the cooldown of a command",
         help="resets the cooldown of a command",
-        aliases=['g'],
+        aliases=['removecooldown', 'cd', 'cooldown'],
         usage='[Command]',
         hidden=False, )
     @commands.check(admin_or_me_check)
