@@ -30,7 +30,7 @@ class LinkTags(commands.Cog, name="Links"):
         message = ""
         for tags in query_r:
             message = f"{message} `{tags['title']}`"
-        await ctx.send(f"Tags: {message}")
+        await ctx.send(f"Links: {message}")
 
     @commands.command(
         name="AddLink",
