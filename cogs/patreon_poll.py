@@ -106,7 +106,7 @@ async def p_poll(polls, ctx, bot):
         else:
             embed.set_footer(
                 text=f"Poll started at {poll['start_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
-                     f"And does not have a close date")
+                     f"and does not have a close date")
 
         for option in options:
             embed.add_field(name=option[0], value=option[1], inline=False)
@@ -139,7 +139,7 @@ class PollCog(commands.Cog, name="Poll"):
         aliases=['p'],
         usage='[Id]',
         help="Shows the current active polls if no id is given. If there is no active poll, the latest poll is shown."
-             "\nFind the poll id via !PollList or !findPoll",
+             "\nFind the poll id via !PollList or !FindPoll",
         hidden=False
     )
     @commands.cooldown(1, 120, commands.BucketType.channel)
@@ -185,11 +185,10 @@ class PollCog(commands.Cog, name="Poll"):
             await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
 
     @commands.command(
-        name="GetPoll",
-        hidden=True
+        name="GetPoll"
     )
     @commands.is_owner()
-    async def get_poll(self, ctx):
+    async def getpoll(self, ctx):
         await get_poll(self.bot)
 
     @commands.command(

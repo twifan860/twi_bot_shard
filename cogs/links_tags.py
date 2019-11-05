@@ -29,7 +29,7 @@ class LinkTags(commands.Cog, name="Links"):
         query_r = await self.bot.pg_con.fetch("SELECT title FROM tags ORDER BY title")
         message = ""
         for tags in query_r:
-            message = f"{message} `{tags['tag']}`"
+            message = f"{message} `{tags['title']}`"
         await ctx.send(f"Tags: {message}")
 
     @commands.command(
