@@ -11,7 +11,7 @@ from cogs.patreon_poll import fetch
 
 def google_search(search_term, api_key, cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
-    res = service.cse().list(q=search_term, cx=cse_id, num=5, **kwargs).execute()
+    res = service.cse().list(q=search_term, cx=cse_id, num=9, **kwargs).execute()
     return res
 
 

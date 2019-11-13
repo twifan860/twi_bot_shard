@@ -19,7 +19,7 @@ def is_bot_channel(ctx):
 
 
 async def get_poll(bot):
-    url = "https://www.patreon.com/api/posts?include=Cpoll.choices%2Cpoll.current_user_responses.poll&sort=-published_at&filter[campaign_id]=568211"
+    url = "https://www.patreon.com/api/posts?include=Cpoll.choices%2Cpoll.current_user_responses.poll&filter[campaign_id]=568211"
     while True:
         async with aiohttp.ClientSession() as session:
             html = await fetch(session, url)
@@ -121,9 +121,9 @@ async def searchPoll(bot, query):
                           description=f"Query: **{query}**")
     for results in test:
         polls_year = await bot.pg_con.fetchrow(
-            "select title, poll_number from (SELECT poll.title, poll.id, row_number() OVER (ORDER BY poll.start_date) as poll_number from poll) as numbered_polls where id = $1",
+            "select title, index_serial from poll where id = $1",
             results['poll_id'])
-        embed.add_field(name=polls_year['title'], value=f"{polls_year['poll_number']} - {results['option_text']}",
+        embed.add_field(name=polls_year['title'], value=f"{polls_year['index_serial']} - {results['option_text']}",
                         inline=False)
     return embed
 
@@ -166,17 +166,16 @@ class PollCog(commands.Cog, name="Poll"):
     )
     @commands.check(is_bot_channel)
     async def poll_list(self, ctx, year=datetime.now(timezone.utc).year):
-        polls_year = await self.bot.pg_con.fetch(
-            "select title, poll_number from (SELECT poll.title, poll.start_date, row_number() OVER (ORDER BY "
-            "poll.start_date) as poll_number from poll) as numbered_polls where date_part('year', start_date) = $1",
+        polls_years = await self.bot.pg_con.fetch(
+            "SELECT title, index_serial FROM poll WHERE date_part('year', start_date) = $1",
             year)
-        if not polls_year:
+        if not polls_years:
             await ctx.send("Sorry there were no polls that year that i could find :(")
         else:
             embed = discord.Embed(title="List of polls", color=discord.Color(0x3cd63d),
                                   description=f"**{year}**")
-            for polls in polls_year:
-                embed.add_field(name=f"{polls['title']}", value=polls['poll_number'], inline=False)
+            for polls in polls_years:
+                embed.add_field(name=f"{polls['title']}", value=polls['index_serial'], inline=False)
             await ctx.send(embed=embed)
 
     @poll_list.error
@@ -190,6 +189,7 @@ class PollCog(commands.Cog, name="Poll"):
     @commands.is_owner()
     async def getpoll(self, ctx):
         await get_poll(self.bot)
+        await ctx.send("Done!")
 
     @commands.command(
         name="FindPoll",
