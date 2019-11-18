@@ -30,13 +30,24 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
         hidden=False,
     )
     async def password(self, ctx):
-        await ctx.send("3 ways.\n"
-                       "1. Link discord to patreon and go to <#346842161704075265> and check pins.\n"
-                       "2. go to <https://www.patreon.com/pirateaba> and check the latest posts. It has the password.")
-        embed = discord.Embed(title="password")
-        embed.set_image(url="https://cdn.discordapp.com/attachments/362248294849576960/638350570972774440/unknown.png")
-        await ctx.send(embed=embed)
-        await ctx.send("3. You will get an email with the password every time pirate posts it.")
+        allowed_channel_ids = [620021401516113940, 346842161704075265, 521403093892726785, 362248294849576960,
+                               359864559361851392]
+        if ctx.message.channel.id in allowed_channel_ids:
+            password = await self.bot.pg_con.fetchrow("SELECT password "
+                                                      "FROM patreon_twi "
+                                                      "WHERE password IS NOT NULL "
+                                                      "ORDER BY serial_id DESC "
+                                                      "LIMIT 1")
+            await ctx.send(password['password'])
+        else:
+            await ctx.send("3 ways.\n"
+                           "1. Link discord to patreon and go to <#346842161704075265> and check pins.\n"
+                           "2. go to <https://www.patreon.com/pirateaba> and check the latest posts. It has the password.")
+            embed = discord.Embed(title="password")
+            embed.set_image(
+                url="https://cdn.discordapp.com/attachments/362248294849576960/638350570972774440/unknown.png")
+            await ctx.send(embed=embed)
+            await ctx.send("3. You will get an email with the password every time pirate posts it.")
 
     @commands.command(
         name="ConnectDiscord",
