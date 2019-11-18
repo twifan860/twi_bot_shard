@@ -58,6 +58,28 @@ class OtherCogs(commands.Cog, name="Other"):
             embed.add_field(name="Roles", value=roles, inline=False)
         await ctx.send(embed=embed)
 
+    @commands.command(
+        name="Say",
+        brief="Makes Cognita repeat whatever was said",
+        aliases=['repeat'],
+        usage='[message]'
+    )
+    @commands.is_owner()
+    async def say(self, ctx, *, say):
+        await ctx.message.delete()
+        await ctx.send(say)
+
+    @commands.command(
+        name="SayChannel",
+        brief="Makes Cognita repeat whatever was said in a specific channel",
+        aliases=['sayc', 'repeatc', 'sc', 'repeatchannel'],
+        usage='[Channel_id][message]'
+    )
+    @commands.is_owner()
+    async def say_channel(self, ctx, channel_id, *, say):
+        channel = self.bot.get_channel(int(channel_id))
+        await channel.send(say)
+
 
 def setup(bot):
     bot.add_cog(OtherCogs(bot))
