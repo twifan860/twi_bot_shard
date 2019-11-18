@@ -98,6 +98,31 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
         if isinstance(error, commands.CheckFailure):
             await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
 
+    @commands.command(
+        name="Invistext",
+        brief="Gives a list of all the invisible text in TWI.",
+        aliases=['ht', 'hiddentext', 'hidden_text', 'invisbletext', 'invisible_text', 'it']
+    )
+    async def invis_text(self, ctx, *, chapter=None):
+        if chapter is None:
+            invis_text_chapters = await self.bot.pg_con.fetch(
+                "SELECT title, COUNT(*) FROM invisible_text_twi GROUP BY title, date ORDER BY date"
+            )
+            embed = discord.Embed(title="Chapters with invisible text")
+            for posts in invis_text_chapters:
+                embed.add_field(name=f"Chapter: {posts['title']}", value=f"{posts['count']}", inline=False)
+            await ctx.send(embed=embed)
+        else:
+            texts = await self.bot.pg_con.fetch(
+                "SELECT title, content FROM invisible_text_twi WHERE lower(title) similar to '%' || $1 || '%'", chapter)
+            if texts:
+                embed = discord.Embed(title=f"{chapter} invisible text")
+                for text in texts:
+                    embed.add_field(name=f"======", value=text['content'], inline=False)
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("Sorry i could not find any invisible text on that chapter.")
+
 
 def setup(bot):
     bot.add_cog(TwiCog(bot))
