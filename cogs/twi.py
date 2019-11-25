@@ -125,7 +125,8 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             await ctx.send(embed=embed)
         else:
             texts = await self.bot.pg_con.fetch(
-                "SELECT title, content FROM invisible_text_twi WHERE lower(title) similar to '%' || $1 || '%'", chapter)
+                "SELECT title, content FROM invisible_text_twi WHERE lower(title) similar to lower('%' || $1 || '%')",
+                chapter)
             if texts:
                 embed = discord.Embed(title=f"Search for: {chapter} invisible text")
                 for text in texts:

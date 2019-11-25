@@ -80,6 +80,24 @@ class OtherCogs(commands.Cog, name="Other"):
         channel = self.bot.get_channel(int(channel_id))
         await channel.send(say)
 
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        # Acid jars, Acid Flies, Frying Pans, Enchanted Soup, Barefoot Clients.
+        # Green, Purple, Orange, Blue, Red
+        list_of_ids = [346842555448557568, 346842589984718848, 346842629633343490, 416001891970056192,
+                       416002473032024086, 593336877407272960]
+        x = before.roles
+        y = after.roles
+        gained = set(y) - set(x)
+        if gained:
+            gained = gained.pop()
+            if gained.id in list_of_ids:
+                channel = self.bot.get_channel(359864559361851392)
+                embed = discord.Embed(title=f"Make some room in the inn!",
+                                      description=f"{after.mention} just ordered a serving off!: {gained.mention}")
+                embed.set_thumbnail(url=after.avatar_url)
+                await channel.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(OtherCogs(bot))

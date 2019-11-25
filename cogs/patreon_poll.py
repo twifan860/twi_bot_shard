@@ -9,6 +9,14 @@ from discord.ext import commands
 import secrets
 
 
+def admin_or_me_check(ctx):
+    if ctx.message.author.id == 268608466690506753:
+        return True
+    elif ctx.message.author.roles == 346842813687922689:
+        return True
+    else:
+        return False
+
 async def fetch(session, url):
     async with session.get(url, cookies=secrets.cookies) as respons:
         return await respons.text()
@@ -186,7 +194,7 @@ class PollCog(commands.Cog, name="Poll"):
     @commands.command(
         name="GetPoll"
     )
-    @commands.is_owner()
+    @commands.check(admin_or_me_check)
     async def getpoll(self, ctx):
         await get_poll(self.bot)
         await ctx.send("Done!")
