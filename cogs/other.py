@@ -85,16 +85,37 @@ class OtherCogs(commands.Cog, name="Other"):
         # Acid jars, Acid Flies, Frying Pans, Enchanted Soup, Barefoot Clients.
         # Green, Purple, Orange, Blue, Red
         list_of_ids = [346842555448557568, 346842589984718848, 346842629633343490, 416001891970056192,
-                       416002473032024086, 593336877407272960]
+                       416002473032024086]
         x = before.roles
         y = after.roles
         gained = set(y) - set(x)
         if gained:
             gained = gained.pop()
             if gained.id in list_of_ids:
-                channel = self.bot.get_channel(359864559361851392)
-                embed = discord.Embed(title=f"Make some room in the inn!",
-                                      description=f"{after.mention} just ordered a serving off!: {gained.mention}")
+                channel = self.bot.get_channel(346842161704075265)
+                # Acid jar
+                if gained.id == 346842555448557568:
+                    embed = discord.Embed(title=f"Hey be careful over there!",
+                                          description=f"Those {gained.mention}, They will melt your hands off {after.mention}!")
+                # Acid Flies
+                elif gained.id == 346842589984718848:
+                    embed = discord.Embed(title=f"Make some room at the tables!",
+                                          description=f"{after.mention} just ordered a bowl of {gained.mention}!")
+                # Frying Pans
+                elif gained.id == 346842629633343490:
+                    embed = discord.Embed(title=f"Someone ordered a frying pan!",
+                                          description=f"Hope {after.mention} can dodge!")
+                # Enchanted Soup
+                elif gained.id == 416001891970056192:
+                    embed = discord.Embed(title=f"Hey get down from there Mrsha!",
+                                          description=f"Looks like {after.mention} will have to order a new serving of {gained.mention} because Mrsha just ate theirs!")
+                # Barefoot Clients
+                elif gained.id == 416002473032024086:
+                    embed = discord.Embed(title=f"Make way!",
+                                          description=f"{gained.mention} {after.mention} coming through!")
+                else:
+                    embed = discord.Embed(title=f"Make some room in the inn!",
+                                          description=f"{after.mention} just joined the ranks of {gained.mention}!")
                 embed.set_thumbnail(url=after.avatar_url)
                 await channel.send(embed=embed)
 
