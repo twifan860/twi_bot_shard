@@ -27,7 +27,7 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
         name="Gallery",
         brief="Adds a image to #gallery",
         help="'!gallery 123123123 a nice image A nice image' will add a image with the id '123123123' called 'A nice image' to #gallery\n"
-             "Get the id of the image by right clicking it and selecting 'Copy id'",
+             "Get the id of the image by right clicking it and selecting 'Copy id' **Note you need to use the command in the same channel as the image**",
         aliases=['g'],
         usage='[Msg Id][Title]',
         hidden=False,
@@ -42,6 +42,8 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
     @commands.command(
         name="Mementos",
         brief="Adds an image to #mementos",
+        help="'!Mementos 123123123 a nice image A nice image' will add a image with the id '123123123' called 'A nice image' to #mementos\n"
+             "Get the id of the image by right clicking it and selecting 'Copy id' **Note you need to use the command in the same channel as the image**",
         aliases=['m'],
         usage='[message Id] [title]\nEx: !mementos 123123123 A nice meme',
         hidden=False,

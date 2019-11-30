@@ -38,7 +38,6 @@ status = cycle(["Killing the mages of Wistram",
                 "Hiding corpses",
                 "Mending Pirateaba's broken hands",
                 "Longing for Zelkyr",
-                "Banishing Chimera to #debates",
                 "Hoarding knowledge",
                 "Dusting off priceless artifacts",
                 "Praying for Mating Rituals 2"])
