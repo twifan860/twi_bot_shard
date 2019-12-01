@@ -86,9 +86,7 @@ class OtherCogs(commands.Cog, name="Other"):
         # Green, Purple, Orange, Blue, Red
         list_of_ids = [346842555448557568, 346842589984718848, 346842629633343490, 416001891970056192,
                        416002473032024086]
-        x = before.roles
-        y = after.roles
-        gained = set(y) - set(x)
+        gained = set(after.roles) - set(before.roles)
         if gained:
             gained = gained.pop()
             if gained.id in list_of_ids:
@@ -117,6 +115,8 @@ class OtherCogs(commands.Cog, name="Other"):
                     embed = discord.Embed(title=f"Make some room in the inn!",
                                           description=f"{after.mention} just joined the ranks of {gained.mention}!")
                 embed.set_thumbnail(url=after.avatar_url)
+                message = await channel.send("temp")
+                await message.edit(content=f"{after.mention}", delete_after=0)
                 await channel.send(embed=embed)
 
 
