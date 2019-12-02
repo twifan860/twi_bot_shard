@@ -116,7 +116,7 @@ class OtherCogs(commands.Cog, name="Other"):
                                           description=f"{after.mention} just joined the ranks of {gained.mention}!")
                 embed.set_thumbnail(url=after.avatar_url)
                 message = await channel.send("temp")
-                await message.edit(content=f"{after.mention}", delete_after=0)
+                await message.edit(content=f"{after.mention}")
                 await channel.send(embed=embed)
 
 
