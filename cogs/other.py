@@ -94,7 +94,7 @@ class OtherCogs(commands.Cog, name="Other"):
                 # Acid jar
                 if gained.id == 346842555448557568:
                     embed = discord.Embed(title=f"Hey be careful over there!",
-                                          description=f"Those {gained.mention}, They will melt your hands off {after.mention}!")
+                                          description=f"Those {gained.mention} will melt your hands off {after.mention}!")
                 # Acid Flies
                 elif gained.id == 346842589984718848:
                     embed = discord.Embed(title=f"Make some room at the tables!",
@@ -115,8 +115,7 @@ class OtherCogs(commands.Cog, name="Other"):
                     embed = discord.Embed(title=f"Make some room in the inn!",
                                           description=f"{after.mention} just joined the ranks of {gained.mention}!")
                 embed.set_thumbnail(url=after.avatar_url)
-                message = await channel.send("temp")
-                await message.edit(content=f"{after.mention}")
+                await channel.send(f"{after.mention}")
                 await channel.send(embed=embed)
 
 
