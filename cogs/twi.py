@@ -135,6 +135,24 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             else:
                 await ctx.send("Sorry i could not find any invisible text on that chapter.")
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.id in {579061805335183370, 579060950867640332}:
+            await message.pin()
+            old_pin = await self.bot.pg_con.fetchrow("SELECT * FROM webhook_pins_twi WHERE webhook_id = $1",
+                                                     message.webhook_id)
+            if old_pin:
+                await self.bot.pg_con.execute(
+                    "UPDATE webhook_pins_twi set message_id = $1, posted_date = $2 WHERE webhook_id = $3", message.id,
+                    message.created_at, message.webhook_id)
+                for pin in await message.channel.pins():
+                    if pin.id == old_pin['message_id']:
+                        await pin.unpin()
+            else:
+                await self.bot.pg_con.execute(
+                    "INSERT INTO webhook_pins_twi(message_id, webhook_id, posted_date) VALUES ($1,$2,$3)", message.id,
+                    message.webhook_id, message.created_at)
+
 
 def setup(bot):
     bot.add_cog(TwiCog(bot))
