@@ -147,6 +147,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                 for pin in await message.channel.pins():
                     if pin.id == old_pin['message_id']:
                         await pin.unpin()
+                        break
             else:
                 await self.bot.pg_con.execute(
                     "INSERT INTO webhook_pins_twi(message_id, webhook_id, posted_date) VALUES ($1,$2,$3)",
