@@ -125,15 +125,16 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             await ctx.send(embed=embed)
         else:
             texts = await self.bot.pg_con.fetch(
-                "SELECT title, content FROM invisible_text_twi WHERE lower(title) similar to lower('%' || $1 || '%')",
+                "SELECT title, content FROM invisible_text_twi WHERE lower(title) similar to lower($1)",
                 chapter)
             if texts:
-                embed = discord.Embed(title=f"Search for: {chapter} invisible text")
+                embed = discord.Embed(title=f"Search for: **{chapter}** invisible text")
                 for text in texts:
                     embed.add_field(name=f"{text['title']}", value=text['content'], inline=False)
                 await ctx.send(embed=embed)
             else:
-                await ctx.send("Sorry i could not find any invisible text on that chapter.")
+                await ctx.send("Sorry i could not find any invisible text on that chapter.\n"
+                               "Please give me the chapters exact title.")
 
     @commands.Cog.listener()
     async def on_message(self, message):
