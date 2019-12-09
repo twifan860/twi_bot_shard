@@ -115,8 +115,7 @@ class OtherCogs(commands.Cog, name="Other"):
                     embed = discord.Embed(title=f"Make some room in the inn!",
                                           description=f"{after.mention} just joined the ranks of {gained.mention}!")
                 embed.set_thumbnail(url=after.avatar_url)
-                await channel.send(f"{after.mention}")
-                await channel.send(embed=embed)
+                await channel.send(embed=embed, content=f"{after.mention}")
 
 
 def setup(bot):
