@@ -88,7 +88,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     @commands.command(
         name="Find",
         brief="Does a google search on 'Wanderinginn.com' and returns the results",
-        aliases=['F'],
+        aliases=['F', 'search'],
         usage='[Query]',
         hidden=False,
     )
@@ -112,7 +112,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     @commands.command(
         name="Invistext",
         brief="Gives a list of all the invisible text in TWI.",
-        aliases=['ht', 'hiddentext', 'hidden_text', 'invisbletext', 'invisible_text', 'it']
+        aliases=['ht', 'hiddentext', 'hidden_text', 'invisbletext', 'invisible_text', 'it', 'invisitext']
     )
     async def invis_text(self, ctx, *, chapter=None):
         if chapter is None:
