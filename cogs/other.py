@@ -23,7 +23,6 @@ class OtherCogs(commands.Cog, name="Other"):
         hidden=False,
     )
     async def av(self, ctx, *, member: discord.Member = None):
-
         if member is None:
             member = ctx.author
         embed = discord.Embed(title="Avatar", color=discord.Color(0x3cd63d))
@@ -38,7 +37,6 @@ class OtherCogs(commands.Cog, name="Other"):
         hidden=False,
     )
     async def info(self, ctx, *, member: discord.Member = None):
-
         if member is None:
             member = ctx.author
 
@@ -116,6 +114,17 @@ class OtherCogs(commands.Cog, name="Other"):
                                           description=f"{after.mention} just joined the ranks of {gained.mention}!")
                 embed.set_thumbnail(url=after.avatar_url)
                 await channel.send(embed=embed, content=f"{after.mention}")
+
+    @commands.command(
+        name="backup",
+    )
+    @commands.is_owner()
+    async def backup(self, ctx, amount):
+        async for message in ctx.channel.history(limit=amount):
+            await self.bot.pg_con.execute(
+                "INSERT INTO foliana_interlude(author, author_id, content, clean_content, date, message_id)VALUES ($1,$2,$3,$4,$5,$6)",
+                message.author.name, message.author.id, message.content, message.clean_content, message.created_at,
+                message.id)
 
 
 def setup(bot):
