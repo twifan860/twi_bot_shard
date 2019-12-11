@@ -119,7 +119,7 @@ class OtherCogs(commands.Cog, name="Other"):
         name="backup",
     )
     @commands.is_owner()
-    async def backup(self, ctx, amount):
+    async def backup(self, ctx, amount: int):
         async for message in ctx.channel.history(limit=amount):
             await self.bot.pg_con.execute(
                 "INSERT INTO foliana_interlude(author, author_id, content, clean_content, date, message_id)VALUES ($1,$2,$3,$4,$5,$6)",
