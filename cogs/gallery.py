@@ -11,9 +11,10 @@ async def add_to_gallery(ctx, msg_id, title, channel):
 
 
 def admin_or_me_check(ctx):
+    role = discord.utils.get(ctx.guild.roles, id=346842813687922689)
     if ctx.message.author.id == 268608466690506753:
         return True
-    elif ctx.message.author.roles == 346842813687922689:
+    elif role in ctx.message.author.roles:
         return True
     else:
         return False
