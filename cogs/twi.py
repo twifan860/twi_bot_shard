@@ -41,7 +41,8 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             await ctx.send(password['password'])
         else:
             await ctx.send("3 ways.\n"
-                           "1. Link discord to patreon and go to <#346842161704075265> and check pins.\n"
+                           "1. Link discord to patreon and go to <#346842161704075265> and check pins or use !pw inside it.\n"
+                           "If you don't know how to connect discord to patreon use the command !cd\n"
                            "2. go to <https://www.patreon.com/pirateaba> and check the latest posts. It has the password.")
             embed = discord.Embed(title="password")
             embed.set_image(
