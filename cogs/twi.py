@@ -137,6 +137,51 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                 await ctx.send("Sorry i could not find any invisible text on that chapter.\n"
                                "Please give me the chapters exact title.")
 
+    @commands.command(
+        name="ColoredText",
+        brief="List of all the different colored texts in twi",
+        aliases=['ct', 'textcolor', 'tc']
+    )
+    async def colored_text(self, ctx):
+        embed = discord.Embed(title="Twi's different colored text")
+        embed.add_field(name="Red skills and classes",
+                        value="#FF0000 "
+                              "<:FF0000:666429504834633789><:FF0000:666429504834633789><:FF0000:666429504834633789>"
+                              "\n<https://wanderinginn.com/2017/09/27/3-17-t/>")
+        embed.add_field(name="Ser Raim skill",
+                        value="#EB0E0E "
+                              "<:EB0E0E:666429505019183144><:EB0E0E:666429505019183144><:EB0E0E:666429505019183144>"
+                              "\n<https://wanderinginn.com/2019/09/10/6-43-e/>")
+        embed.add_field(name="Ivolethe summoning fire",
+                        value="#E01D1D "
+                              "<:E01D1D:666429504863993908><:E01D1D:666429504863993908><:E01D1D:666429504863993908>"
+                              "\n<https://wanderinginn.com/2017/12/30/interlude-4/>")
+        embed.add_field(name="Unique Skills",
+                        value="#99CC00 "
+                              "<:99CC00:666429504998211594><:99CC00:666429504998211594><:99CC00:666429504998211594>"
+                              "\n<https://wanderinginn.com/2017/05/03/2-19/>")
+        embed.add_field(name="Erin's landmark skill",
+                        value="#FF9900 "
+                              "<:FF9900:666435308480364554><:FF9900:666435308480364554><:FF9900:666435308480364554>"
+                              "\n<https://wanderinginn.com/2018/12/08/5-44/>")
+        embed.add_field(name="Emperor's command",
+                        value="#FFD700 "
+                              "<:FFD700:666429505031897107><:FFD700:666429505031897107><:FFD700:666429505031897107>"
+                              "\n<https://wanderinginn.com/2018/03/27/4-23-e/>")
+        embed.add_field(name="Invisible text",
+                        value="#0C0E0E "
+                              "<:0C0E0E:666452140994330624><:0C0E0E:666452140994330624><:0C0E0E:666452140994330624>"
+                              "\n<https://wanderinginn.com/2016/12/18/1-08-r/>")
+        embed.add_field(name="Spring fae talking",
+                        value="#96BE50 "
+                              "<:96BE50:666429505014857728><:96BE50:666429505014857728><:96BE50:666429505014857728>"
+                              "\n<https://wanderinginn.com/2018/08/14/5-11-e/>")
+        embed.add_field(name="Winter fae talking",
+                        value="#8AE8FF "
+                              "<:8AE8FF:666429505015119922><:8AE8FF:666429505015119922><:8AE8FF:666429505015119922>"
+                              "\n<https://wanderinginn.com/2017/03/28/2-06/>")
+        await ctx.send(embed=embed)
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.id in {579061805335183370, 579060950867640332}:
