@@ -168,10 +168,14 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                         value="#FFD700 "
                               "<:FFD700:666429505031897107><:FFD700:666429505031897107><:FFD700:666429505031897107>"
                               "\n<https://wanderinginn.com/2018/03/27/4-23-e/>")
-        embed.add_field(name="Invisible text",
-                        value="#0C0E0E "
-                              "<:0C0E0E:666452140994330624><:0C0E0E:666452140994330624><:0C0E0E:666452140994330624>"
-                              "\n<https://wanderinginn.com/2016/12/18/1-08-r/>")
+        embed.add_field(name="Class restoration",
+                        value="#99CCFF "
+                              "<:99CCFF:667886770679054357><:99CCFF:667886770679054357><:99CCFF:667886770679054357>"
+                              "\n<https://wanderinginn.com/2017/10/03/3-20-t/>")
+        embed.add_field(name="Winter fae talking",
+                        value="#8AE8FF "
+                              "<:8AE8FF:666429505015119922><:8AE8FF:666429505015119922><:8AE8FF:666429505015119922>"
+                              "\n<https://wanderinginn.com/2017/03/28/2-06/>")
         embed.add_field(name="Spring fae talking",
                         value="#96BE50 "
                               "<:96BE50:666429505014857728><:96BE50:666429505014857728><:96BE50:666429505014857728>"
