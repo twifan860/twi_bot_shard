@@ -180,10 +180,6 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                         value="#96BE50 "
                               "<:96BE50:666429505014857728><:96BE50:666429505014857728><:96BE50:666429505014857728>"
                               "\n<https://wanderinginn.com/2018/08/14/5-11-e/>")
-        embed.add_field(name="Winter fae talking",
-                        value="#8AE8FF "
-                              "<:8AE8FF:666429505015119922><:8AE8FF:666429505015119922><:8AE8FF:666429505015119922>"
-                              "\n<https://wanderinginn.com/2017/03/28/2-06/>")
         await ctx.send(embed=embed)
 
     @commands.Cog.listener()
