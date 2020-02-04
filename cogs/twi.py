@@ -145,41 +145,65 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     async def colored_text(self, ctx):
         embed = discord.Embed(title="Twi's different colored text")
         embed.add_field(name="Red skills and classes",
-                        value="#FF0000 "
-                              "<:FF0000:666429504834633789><:FF0000:666429504834633789><:FF0000:666429504834633789>"
+                        value="#FF0000\n"
+                              "<:FF0000:666429504834633789><:FF0000:666429504834633789><:FF0000:666429504834633789><:FF0000:666429504834633789>"
                               "\n<https://wanderinginn.com/2017/09/27/3-17-t/>")
         embed.add_field(name="Ser Raim skill",
-                        value="#EB0E0E "
-                              "<:EB0E0E:666429505019183144><:EB0E0E:666429505019183144><:EB0E0E:666429505019183144>"
+                        value="#EB0E0E\n"
+                              "<:EB0E0E:666429505019183144><:EB0E0E:666429505019183144><:EB0E0E:666429505019183144><:EB0E0E:666429505019183144>"
                               "\n<https://wanderinginn.com/2019/09/10/6-43-e/>")
         embed.add_field(name="Ivolethe summoning fire",
-                        value="#E01D1D "
-                              "<:E01D1D:666429504863993908><:E01D1D:666429504863993908><:E01D1D:666429504863993908>"
+                        value="#E01D1D\n"
+                              "<:E01D1D:666429504863993908><:E01D1D:666429504863993908><:E01D1D:666429504863993908><:E01D1D:666429504863993908>"
                               "\n<https://wanderinginn.com/2017/12/30/interlude-4/>")
         embed.add_field(name="Unique Skills",
-                        value="#99CC00 "
-                              "<:99CC00:666429504998211594><:99CC00:666429504998211594><:99CC00:666429504998211594>"
+                        value="#99CC00\n"
+                              "<:99CC00:666429504998211594><:99CC00:666429504998211594><:99CC00:666429504998211594><:99CC00:666429504998211594>"
                               "\n<https://wanderinginn.com/2017/05/03/2-19/>")
         embed.add_field(name="Erin's landmark skill",
-                        value="#FF9900 "
-                              "<:FF9900:666435308480364554><:FF9900:666435308480364554><:FF9900:666435308480364554>"
+                        value="#FF9900\n"
+                              "<:FF9900:666435308480364554><:FF9900:666435308480364554><:FF9900:666435308480364554><:FF9900:666435308480364554>"
                               "\n<https://wanderinginn.com/2018/12/08/5-44/>")
         embed.add_field(name="Emperor's command",
-                        value="#FFD700 "
-                              "<:FFD700:666429505031897107><:FFD700:666429505031897107><:FFD700:666429505031897107>"
+                        value="#FFD700\n"
+                              "<:FFD700:666429505031897107><:FFD700:666429505031897107><:FFD700:666429505031897107><:FFD700:666429505031897107>"
                               "\n<https://wanderinginn.com/2018/03/27/4-23-e/>")
         embed.add_field(name="Class restoration",
-                        value="#99CCFF "
-                              "<:99CCFF:667886770679054357><:99CCFF:667886770679054357><:99CCFF:667886770679054357>"
+                        value="#99CCFF\n"
+                              "<:99CCFF:667886770679054357><:99CCFF:667886770679054357><:99CCFF:667886770679054357><:99CCFF:667886770679054357>"
                               "\n<https://wanderinginn.com/2017/10/03/3-20-t/>")
         embed.add_field(name="Winter fae talking",
-                        value="#8AE8FF "
-                              "<:8AE8FF:666429505015119922><:8AE8FF:666429505015119922><:8AE8FF:666429505015119922>"
+                        value="#8AE8FF\n"
+                              "<:8AE8FF:666429505015119922><:8AE8FF:666429505015119922><:8AE8FF:666429505015119922><:8AE8FF:666429505015119922>"
                               "\n<https://wanderinginn.com/2017/03/28/2-06/>")
         embed.add_field(name="Spring fae talking",
-                        value="#96BE50 "
-                              "<:96BE50:666429505014857728><:96BE50:666429505014857728><:96BE50:666429505014857728>"
+                        value="#96BE50\n"
+                              "<:96BE50:666429505014857728><:96BE50:666429505014857728><:96BE50:666429505014857728><:96BE50:666429505014857728>"
                               "\n<https://wanderinginn.com/2018/08/14/5-11-e/>")
+        embed.add_field(name="Grand Queen talking",
+                        value="#FFCC00\n"
+                              "<:FFCC00:674267820678316052><:FFCC00:674267820678316052><:FFCC00:674267820678316052><:FFCC00:674267820678316052>"
+                              "\n<https://wanderinginn.com/2019/01/22/5-54-2/>")
+        embed.add_field(name="Silent Queen talking",
+                        value="#CC99FF\n"
+                              "<:CC99FF:674267820732841984><:CC99FF:674267820732841984><:CC99FF:674267820732841984><:CC99FF:674267820732841984>"
+                              "\n<https://wanderinginn.com/2019/01/22/5-54-2/>")
+        embed.add_field(name="Armored Queen talking",
+                        value="#999999\n"
+                              "<:999999:674267820820791306><:999999:674267820820791306><:999999:674267820820791306><:999999:674267820820791306>"
+                              "\n<https://wanderinginn.com/2019/01/22/5-54-2/>")
+        embed.add_field(name="Twisted Queen talking",
+                        value="#993300\n"
+                              "<:993300:674267820694962186><:993300:674267820694962186><:993300:674267820694962186><:993300:674267820694962186>"
+                              "\n<https://wanderinginn.com/2019/01/22/5-54-2/>")
+        embed.add_field(name="Flying Queen talking",
+                        value="#99CC00\n"
+                              "<:99CC00:666429504998211594><:99CC00:666429504998211594><:99CC00:666429504998211594><:99CC00:666429504998211594>"
+                              "\n<https://wanderinginn.com/2019/01/22/5-54-2/>")
+        embed.add_field(name="Magnolia charm skill",
+                        value="#FDDBFF, #FFB8FD, #FD78FF, #FB00FF\n"
+                              "<:FDDBFF:674370583412080670><:FFB8FD:674385325572751371><:FD78FF:674385325208109088><:FB00FF:674385325522681857>"
+                              "\n<https://wanderinginn.com/2017/06/21/2-31/>")
         await ctx.send(embed=embed)
 
     @commands.Cog.listener()

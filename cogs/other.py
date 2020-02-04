@@ -52,7 +52,7 @@ class OtherCogs(commands.Cog, name="Other"):
                 pass
             else:
                 roles += f"{role.mention}\n"
-        if roles is not "":
+        if roles != "":
             embed.add_field(name="Roles", value=roles, inline=False)
         await ctx.send(embed=embed)
 
