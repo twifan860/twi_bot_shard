@@ -31,7 +31,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     )
     async def password(self, ctx):
         allowed_channel_ids = [620021401516113940, 346842161704075265, 521403093892726785, 362248294849576960,
-                               359864559361851392]
+                               359864559361851392, 668721870488469514]
         if ctx.message.channel.id in allowed_channel_ids:
             password = await self.bot.pg_con.fetchrow("SELECT password "
                                                       "FROM patreon_twi "
