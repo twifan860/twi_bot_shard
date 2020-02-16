@@ -53,7 +53,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     @commands.command(
         name="ConnectDiscord",
         brief="Information for patreons on how to connect their patreon account to discord.",
-        aliases=['cd'],
+        aliases=['cd', 'connectpatreon', 'patreon', 'connect'],
         hidden=False,
     )
     async def connect_discord(self, ctx):
