@@ -10,6 +10,7 @@ class LinkTags(commands.Cog, name="Links"):
         name="Link",
         brief="Posts the link with the given name.",
         usage='[Title]',
+        aliases=['map'],
         hidden=False,
     )
     async def link(self, ctx, user_input):
