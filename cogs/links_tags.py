@@ -86,10 +86,14 @@ class LinkTags(commands.Cog, name="Links"):
     async def tag(self, ctx, user_input):
         query_r = await self.bot.pg_con.fetch("SELECT title FROM tags WHERE lower(tag) = lower($1) ORDER BY title",
                                               user_input)
-        message = ""
-        for tags in query_r:
-            message = f"{message}\n`{tags['title']}`"
-        await ctx.send(f"links: {message}")
+        if query_r:
+            message = ""
+            for tags in query_r:
+                message = f"{message}\n`{tags['title']}`"
+            await ctx.send(f"links: {message}")
+        else:
+            ctx.send(f"I could not find a link with the tag **{user_input}**. Use !tags to see all available tags. "
+                     "or !links to see all links.")
 
 
 def setup(bot):
