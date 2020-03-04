@@ -92,7 +92,7 @@ class LinkTags(commands.Cog, name="Links"):
                 message = f"{message}\n`{tags['title']}`"
             await ctx.send(f"links: {message}")
         else:
-            ctx.send(f"I could not find a link with the tag **{user_input}**. Use !tags to see all available tags. "
+            await ctx.send(f"I could not find a link with the tag **{user_input}**. Use !tags to see all available tags. "
                      "or !links to see all links.")
 
 
