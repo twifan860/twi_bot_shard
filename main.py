@@ -40,7 +40,7 @@ status = cycle(["Killing the mages of Wistram",
                 "Longing for Zelkyr",
                 "Hoarding knowledge",
                 "Dusting off priceless artifacts",
-                "Praying for Mating Rituals 2"])
+                "Praying for Mating Rituals 3"])
 
 
 @tasks.loop(seconds=10)
