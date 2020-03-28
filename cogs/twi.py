@@ -8,6 +8,14 @@ from googleapiclient.discovery import build
 import secrets
 from cogs.patreon_poll import fetch
 
+def admin_or_me_check(ctx):
+    role = discord.utils.get(ctx.guild.roles, id=346842813687922689)
+    if ctx.message.author.id == 268608466690506753:
+        return True
+    elif role in ctx.message.author.roles:
+        return True
+    else:
+        return False
 
 def google_search(search_term, api_key, cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
@@ -33,12 +41,13 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
         allowed_channel_ids = [620021401516113940, 346842161704075265, 521403093892726785, 362248294849576960,
                                359864559361851392, 668721870488469514]
         if ctx.message.channel.id in allowed_channel_ids:
-            password = await self.bot.pg_con.fetchrow("SELECT password "
-                                                      "FROM patreon_twi "
+            password = await self.bot.pg_con.fetchrow("SELECT password, link "
+                                                      "FROM password_link "
                                                       "WHERE password IS NOT NULL "
                                                       "ORDER BY serial_id DESC "
                                                       "LIMIT 1")
             await ctx.send(password['password'])
+            await ctx.send(password['link'])
         else:
             await ctx.send("3 ways.\n"
                            "1. Link discord to patreon and go to <#346842161704075265> and check pins or use !pw inside it.\n"
@@ -224,6 +233,20 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                     "INSERT INTO webhook_pins_twi(message_id, webhook_id, posted_date) VALUES ($1,$2,$3)",
                     message.id, message.webhook_id, message.created_at)
             await message.pin()
+
+    @commands.command(
+        name="UpdatePassword",
+        brief="Updates the password and link from !password",
+        aliases=['up', 'update', 'upp'],
+        usage='[Password] [Link]',
+        hidden=False,
+    )
+    @commands.check(admin_or_me_check)
+    async def updatePassword(self, ctx, password, link):
+        await self.bot.pg_con.execute(
+            "INSERT INTO password_link(password, link, user_id, date) VALUES ($1, $2, $3, $4)",
+            password, link, ctx.author.id, ctx.message.created_at
+        )
 
 
 def setup(bot):
