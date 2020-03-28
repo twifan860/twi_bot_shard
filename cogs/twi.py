@@ -47,7 +47,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                                                       "ORDER BY serial_id DESC "
                                                       "LIMIT 1")
             await ctx.send(password['password'])
-            await ctx.send(password['link'])
+            await ctx.send(f"<{password['link']}>")
         else:
             await ctx.send("3 ways.\n"
                            "1. Link discord to patreon and go to <#346842161704075265> and check pins or use !pw inside it.\n"
