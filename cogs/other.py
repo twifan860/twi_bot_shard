@@ -138,9 +138,9 @@ class OtherCogs(commands.Cog, name="Other"):
                 index_res = f"{index_res}{str(result['row_number'])}, "
             index_res = index_res[:-2]
             index_res = f"{index_res}]"
-            await ctx.send(f"{results[0]['quote']}\nThere is also results at {index_res}")
+            await ctx.send(f"Quote {results[0]['row_number']}: {results[0]['quote']}\nThere is also results at {index_res}")
         elif len(results) == 1:
-            await ctx.send(f"{results[0]['quote']}")
+            await ctx.send(f"Quote {results[0]['row_number']}: {results[0]['quote']}")
         elif len(results) < 1:
             await ctx.send("I found no results")
         else:
