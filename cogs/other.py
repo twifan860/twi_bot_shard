@@ -178,7 +178,10 @@ class OtherCogs(commands.Cog, name="Other"):
     )
     async def whoquote(self, ctx, index: int):
         u_quote = await self.bot.pg_con.fetchrow("SELECT author, author_id, time, row_number FROM (SELECT author, author_id, time, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1", index)
-        await ctx.send(f"Quote {u_quote['row_number']} was added by: {u_quote['author']} ({u_quote['author_id']}) at {u_quote['time']}")
+        if u_quote:
+            await ctx.send(f"Quote {u_quote['row_number']} was added by: {u_quote['author']} ({u_quote['author_id']}) at {u_quote['time']}")
+        else:
+            await ctx.send("Im sorry, i could not find a quote with that index value.")
     @commands.command(
         name="backup",
     )
