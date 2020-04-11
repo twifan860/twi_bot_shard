@@ -122,7 +122,8 @@ class OtherCogs(commands.Cog, name="Other"):
     async def addquote(self, ctx, *, quote):
         await self.bot.pg_con.execute("INSERT INTO quotes(quote, author, author_id, time, tokens) VALUES ($1,$2,$3,now(),to_tsvector($4))",
                                       quote, ctx.author.display_name, ctx.author.id, quote)
-        await ctx.send(f"Added quote `{quote}`")
+        row_number = await self.bot.pg_con.fetchrow("SELECT COUNT(*) FROM quotes")
+        await ctx.send(f"Added quote `{quote}` at index {row_number['count']}")
 
     @commands.command(
         name="findQuote",
