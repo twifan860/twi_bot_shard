@@ -150,7 +150,7 @@ class OtherCogs(commands.Cog, name="Other"):
 
     @commands.command(
         name="deleteQuote",
-        aliases=['dq']
+        aliases=['dq', 'removequote', 'rq']
     )
     async def deletequote(self, ctx, *, delete: int):
         u_quote = await self.bot.pg_con.fetchrow("SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1", delete)
