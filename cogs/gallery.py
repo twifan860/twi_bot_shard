@@ -39,7 +39,7 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
                                                     "gallery")
         channel = self.bot.get_channel(channel_id["channel_id"])
         await add_to_gallery(ctx, msg_id, title, channel)
-        ctx.message.delete()
+        await ctx.message.delete()
 
     @commands.command(
         name="Mementos",
@@ -56,7 +56,7 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
                                                     "mementos")
         channel = self.bot.get_channel(channel_id["channel_id"])
         await add_to_gallery(ctx, msg_id, title, channel)
-        ctx.message.delete()
+        await ctx.message.delete()
 
     @commands.command(
         name="setGallery",
