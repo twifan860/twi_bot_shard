@@ -8,6 +8,7 @@ from googleapiclient.discovery import build
 import secrets
 from cogs.patreon_poll import fetch
 
+
 def admin_or_me_check(ctx):
     role = discord.utils.get(ctx.guild.roles, id=346842813687922689)
     if ctx.message.author.id == 268608466690506753:
@@ -16,6 +17,7 @@ def admin_or_me_check(ctx):
         return True
     else:
         return False
+
 
 def google_search(search_term, api_key, cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
