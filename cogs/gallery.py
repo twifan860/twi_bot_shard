@@ -92,6 +92,19 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
         await self.bot.pg_con.execute("UPDATE gallery_mementos SET channel_id=$1 WHERE channel_name=$2", mementos_id,
                                       "mementos")
 
+    @commands.command(
+        name="editEmbed",
+        brief="Edits the title a of embed by its message id",
+        aliases=['ee'],
+        usage='[message id] [New title]'
+    )
+    @commands.check(admin_or_me_check)
+    async def editembed(self, ctx, embed_id: int, *, title):
+        msg = await ctx.fetch_message(embed_id)
+        test = msg.embeds
+        test[0].title = title
+        await msg.edit(embed=test[0])
+
 
 def setup(bot):
     bot.add_cog(GalleryCog(bot))
