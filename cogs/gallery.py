@@ -94,7 +94,9 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
 
     @commands.command(
         name="editEmbed",
-        brief="Edits the title a of embed by its message id",
+        brief="Edits the title a of embed by its message id.",
+        help="Ex: `!EditEmbed 704581082808320060 New title` will give a new title to the embed with the id `704581082808320060`\n"
+             "Needs to be used in the same channel as the embed",
         aliases=['ee'],
         usage='[message id] [New title]'
     )
