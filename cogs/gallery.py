@@ -106,6 +106,7 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
         test = msg.embeds
         test[0].title = title
         await msg.edit(embed=test[0])
+        await ctx.message.delete()
 
 
 def setup(bot):
