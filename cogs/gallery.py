@@ -95,7 +95,8 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
     @commands.command(
         name="editEmbed",
         brief="Edits the title a of embed by its message id.",
-        help="Ex: `!EditEmbed 704581082808320060 New title` will give a new title to the embed with the id `704581082808320060`\n"
+        help="Ex: '!EditEmbed 704581082808320060 New title' will give a new title to the embed with the id "
+             "704581082808320060\n "
              "Needs to be used in the same channel as the embed",
         aliases=['ee'],
         usage='[message id] [New title]'
@@ -107,6 +108,25 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
         test[0].title = title
         await msg.edit(embed=test[0])
         await ctx.message.delete()
+
+    @commands.command(
+        name="ToBeAdded",
+        brief="Adds a image to the channel <#697663359444713482>",
+        help="'!ToBeAdded 123123123 nice image' will add a image with the id '123123123' called 'A nice image' to #To-be-added\n"
+             "Get the id of the image by right clicking it and selecting 'Copy id' "
+             "\nNote you need to use the command in the same channel as the image",
+        aliases=['tba'],
+        usage="[Message id] [Title]"
+    )
+    @commands.check(admin_or_me_check)
+    async def to_be_added(self, ctx, message_id, *, title):
+        channel_id = 697663359444713482
+        channel = self.bot.get_channel(channel_id)
+        msg = await ctx.fetch_message(message_id)
+        attach = msg.attachments
+        embed = discord.Embed(title=title, description=f"Created by: {msg.author.mention}\nSource: {msg.jump_url}")
+        embed.set_image(url=attach[0].url)
+        await channel.send(embed=embed)
 
 
 def setup(bot):
