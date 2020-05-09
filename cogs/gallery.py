@@ -127,6 +127,7 @@ class GalleryCog(commands.Cog, name="Gallery & Mementos"):
         embed = discord.Embed(title=title, description=f"Created by: {msg.author.mention}\nSource: {msg.jump_url}")
         embed.set_image(url=attach[0].url)
         await channel.send(embed=embed)
+        await ctx.message.delete()
 
 
 def setup(bot):
