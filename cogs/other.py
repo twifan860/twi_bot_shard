@@ -194,6 +194,19 @@ class OtherCogs(commands.Cog, name="Other"):
                 message.author.name, message.author.id, message.content, message.clean_content, message.created_at,
                 message.id)
 
+    @commands.command(
+        name="pink",
+        aliases=['nitro']
+    )
+    @commands.has_role(585789843368574997)
+    async def pink(self, ctx):
+        pink_role = ctx.guild.get_role(690373096099545168)
+        if pink_role in ctx.author.roles:
+            await ctx.author.remove_roles(pink_role)
+            await ctx.send(f"I removed {pink_role.name}")
+        else:
+            await ctx.author.add_roles(pink_role)
+            await ctx.send(f"I added {pink_role.name}")
 
 def setup(bot):
     bot.add_cog(OtherCogs(bot))
