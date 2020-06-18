@@ -152,6 +152,7 @@ class PollCog(commands.Cog, name="Poll"):
         hidden=False
     )
     @commands.cooldown(1, 300, commands.BucketType.channel)
+    @commands.check(is_bot_channel)
     async def poll(self, ctx, x=None):
         if is_bot_channel(ctx):
             self.poll.reset_cooldown(ctx)
@@ -164,7 +165,13 @@ class PollCog(commands.Cog, name="Poll"):
                 x = last_poll[0][0]
             value = await self.bot.pg_con.fetch("SELECT * FROM poll ORDER BY id OFFSET $1 LIMIT 1", int(x) - 1)
             await p_poll(value, ctx, self.bot)
+    
+    @poll.error
+    async def isError(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
 
+    
     @commands.command(
         name="PollList",
         brief="Shows the list of poll ids sorted by year.",
