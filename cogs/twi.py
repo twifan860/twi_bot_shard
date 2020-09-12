@@ -175,10 +175,10 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                         value="#FF9900\n"
                               "<:FF9900:666435308480364554><:FF9900:666435308480364554><:FF9900:666435308480364554><:FF9900:666435308480364554>"
                               "\n<https://wanderinginn.com/2018/12/08/5-44/>")
-        embed.add_field(name="Emperor's command",
+        embed.add_field(name="Emperor's command/Lyonette's boon",
                         value="#FFD700\n"
                               "<:FFD700:666429505031897107><:FFD700:666429505031897107><:FFD700:666429505031897107><:FFD700:666429505031897107>"
-                              "\n<https://wanderinginn.com/2018/03/27/4-23-e/>")
+                              "\n<https://wp.me/p7HFeU-14N>, <https://wp.me/p7HFeU-2gH">)
         embed.add_field(name="Class restoration",
                         value="#99CCFF\n"
                               "<:99CCFF:667886770679054357><:99CCFF:667886770679054357><:99CCFF:667886770679054357><:99CCFF:667886770679054357>"

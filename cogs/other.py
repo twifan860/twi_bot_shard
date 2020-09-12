@@ -208,5 +208,20 @@ class OtherCogs(commands.Cog, name="Other"):
             await ctx.author.add_roles(pink_role)
             await ctx.send(f"I added {pink_role.name}")
 
+    @commands.command(
+        name="artistColor",
+        aliases=['artcolor, artistcolor, artcolour, artistcolour']
+    )
+    @commands.has_role(730704163792748625)
+    async def artistcolor(self, ctx):
+        artist_role = ctx.guild.get_role(740611013556043887)
+        if artist_role in ctx.author.roles:
+            await ctx.author.remove_roles(artist_role)
+            await ctx.send(f"I removed {artist_role.name}")
+        else:
+            await ctx.author.add_roles(artist_role)
+            await ctx.send(f"I added {artist_role.name}")
+
+
 def setup(bot):
     bot.add_cog(OtherCogs(bot))
