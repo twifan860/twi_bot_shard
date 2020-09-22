@@ -24,6 +24,7 @@ class LinkTags(commands.Cog, name="Links"):
     @commands.command(
         name="Links",
         brief="View all links.",
+        aliases=['maps'],
         hidden=False,
     )
     async def links(self, ctx):
