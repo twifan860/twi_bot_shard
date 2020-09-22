@@ -36,11 +36,13 @@ class ModCogs(commands.Cog):
     )
     @commands.check(admin_or_me_check)
     async def state(self, ctx, *, message):
-        embed=discord.Embed(title="**MOD MESSAGE**", color=0xff0000)
-        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/359864559361851392/715698476813385788/Exclamation-Mark-Symbol-PNG.png")
+        embed = discord.Embed(title="**MOD MESSAGE**", color=0xff0000)
+        embed.set_thumbnail(
+            url="https://cdn.discordapp.com/attachments/359864559361851392/715698476813385788/Exclamation-Mark-Symbol-PNG.png")
         embed.add_field(name="\u200b", value=message, inline=False)
         embed.set_footer(text=f"{ctx.author.name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(ModCogs(bot))

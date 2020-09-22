@@ -18,6 +18,7 @@ def admin_or_me_check(ctx):
     else:
         return False
 
+
 async def fetch(session, url):
     async with session.get(url, cookies=secrets.cookies) as respons:
         return await respons.text()
@@ -28,7 +29,8 @@ def is_bot_channel(ctx):
 
 
 async def get_poll(bot):
-    url = "https://www.patreon.com/api/posts?include=Cpoll.choices%2Cpoll.current_user_responses.poll&filter[campaign_id]=568211"
+    url = "https://www.patreon.com/api/" \
+          "posts?include=Cpoll.choices%2Cpoll.current_user_responses.poll&filter[campaign_id]=568211"
     while True:
         async with aiohttp.ClientSession() as session:
             html = await fetch(session, url)
@@ -51,7 +53,8 @@ async def get_poll(bot):
                     title = json_data2['data']['attributes']['question_text']
                     if closes_at_converted is None or closes_at_converted < datetime.now(timezone.utc):
                         await bot.pg_con.execute(
-                            "INSERT INTO poll(api_url, poll_url, id, start_date, expire_date, title, total_votes, expired, num_options)"
+                            "INSERT INTO poll(api_url, poll_url, id, start_date, expire_date, title, total_votes, "
+                            "expired, num_options) "
                             "VALUES ($1,$2,$3,$4,$5,$6,$7, TRUE, $8)",
                             posts['relationships']['poll']['links']['related'],
                             "https://www.patreon.com" + posts['attributes']['patreon_url'],
@@ -72,7 +75,8 @@ async def get_poll(bot):
                                 int(json_data2['data']['relationships']['choices']['data'][i]['id']))
                     else:
                         await bot.pg_con.execute(
-                            "INSERT INTO poll(api_url, poll_url, id, start_date, expire_date, title, expired, num_options)"
+                            "INSERT INTO poll(api_url, poll_url, id, start_date, expire_date, title, expired, "
+                            "num_options) "
                             "VALUES ($1,$2,$3,$4,$5,$6, FALSE, $7)",
                             posts['relationships']['poll']['links']['related'],
                             "https://www.patreon.com" + posts['attributes']['patreon_url'],
@@ -110,7 +114,8 @@ async def p_poll(polls, ctx, bot):
             hours = int(((time_left.total_seconds() // 3600) % 24))
             embed.set_footer(
                 text=f"Poll started at {poll['start_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
-                     f"and {'closed' if poll['expired'] else 'closes'} at {poll['expire_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
+                     f"and {'closed' if poll['expired'] else 'closes'} at "
+                     f"{poll['expire_date'].strftime('%Y-%m-%d %H:%M:%S %Z')} "
                      f"({time_left.days} days and {hours} hours {'ago' if poll['expired'] else 'left'})")
         else:
             embed.set_footer(
@@ -122,7 +127,7 @@ async def p_poll(polls, ctx, bot):
         await ctx.send(embed=embed)
 
 
-async def searchPoll(bot, query):
+async def search_poll(bot, query):
     test = await bot.pg_con.fetch(
         "SELECT poll_id, option_text FROM poll_option WHERE tokens @@ plainto_tsquery($1)",
         query)
@@ -164,13 +169,12 @@ class PollCog(commands.Cog, name="Poll"):
                 x = last_poll[0][0]
             value = await self.bot.pg_con.fetch("SELECT * FROM poll ORDER BY id OFFSET $1 LIMIT 1", int(x) - 1)
             await p_poll(value, ctx, self.bot)
-    
+
     @poll.error
     async def isError(self, ctx, error):
         if isinstance(error, commands.CheckFailure):
             await ctx.send("Please use this command in <#361694671631548417> only. It takes up quite a bit of space.")
 
-    
     @commands.command(
         name="PollList",
         brief="Shows the list of poll ids sorted by year.",
@@ -214,7 +218,7 @@ class PollCog(commands.Cog, name="Poll"):
         hidden=False
     )
     async def findpoll(self, ctx, *, query):
-        await ctx.send(embed=await searchPoll(self.bot, query))
+        await ctx.send(embed=await search_poll(self.bot, query))
 
 
 def setup(bot):
