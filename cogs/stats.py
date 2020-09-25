@@ -112,7 +112,7 @@ class StatsCogs(commands.Cog, name="stats"):
     async def save(self, ctx):
         channels = ctx.guild.text_channels
         for channel in channels:
-            if channel.permissions_for(channel.guild.me).send_messages:
+            if channel.permissions_for(channel.guild.me).read_message_history:
                 last_message = await self.bot.pg_con.fetchrow(
                     'SELECT created_at FROM messages WHERE "channel_ID" = $1 ORDER BY created_at DESC LIMIT 1',
                     channel.id)
