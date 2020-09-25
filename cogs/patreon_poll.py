@@ -1,10 +1,10 @@
 import json
 from datetime import datetime, timezone
-from operator import itemgetter
 
 import aiohttp
 import discord
 from discord.ext import commands
+from operator import itemgetter
 
 import secrets
 
@@ -32,7 +32,7 @@ async def get_poll(bot):
     url = "https://www.patreon.com/api/" \
           "posts?include=Cpoll.choices%2Cpoll.current_user_responses.poll&filter[campaign_id]=568211"
     while True:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(cookies=secrets.cookies) as session:
             html = await fetch(session, url)
             json_data = json.loads(html)
         for posts in json_data['data']:
@@ -94,7 +94,7 @@ async def get_poll(bot):
 async def p_poll(polls, ctx, bot):
     for poll in polls:
         if not poll['expired']:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(cookies=secrets.cookies) as session:
                 html = await fetch(session, poll["api_url"])
                 json_data = json.loads(html)
             options = []
