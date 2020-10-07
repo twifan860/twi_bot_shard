@@ -69,7 +69,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     )
     async def connect_discord(self, ctx):
         await ctx.send(
-            "[Check this link](https://support.patreon.com/hc/en-us/articles/212052266-How-do-I-receive-my-Discord-role)")
+            "Check this link https://support.patreon.com/hc/en-us/articles/212052266-How-do-I-receive-my-Discord-role")
 
     @commands.command(
         name="Wiki",
@@ -79,23 +79,27 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
         hidden=False,
     )
     async def wiki(self, ctx, *, query):
-        url = f"https://thewanderinginn.fandom.com/api/v1/Search/List?query={query}&limit=1&minArticleQuality=0"
+        embed = discord.Embed(title=f"Wiki results from **{query}**")
         async with aiohttp.ClientSession() as session:
-            html = await fetch(session, url)
-            json_data = json.loads(html)
+            html = await fetch(session,
+                               f"https://thewanderinginn.fandom.com/api.php?action=query&generator=search&gsrsearch={query}&format=json&prop=info|images&inprop=url")
         try:
-            await ctx.send(
-                f"Results from search **{query}**\n{json_data['items'][0]['title']} - {json_data['items'][0]['url']}")
-        except IndexError:
-            url = f"https://thewanderinginn.fandom.com/api/v1/SearchSuggestions/List?query={query}"
+            sorted_json_data = sorted(json.loads(html)['query']['pages'].values(), key=lambda k: k['index'])
+        except KeyError:
+            await ctx.send(f"I'm sorry, I could not find a article matching **{query}**.")
+            return
+        for results in sorted_json_data:
+            embed.add_field(name="\u200b", value=f"[{results['title']}]({results['fullurl']})", inline=False)
+        try:
             async with aiohttp.ClientSession() as session:
-                html = await fetch(session, url)
-                json_data = json.loads(html)
-            try:
-                await ctx.send(
-                    f"Sorry, i could not find a article matching that search. You could try: {json_data['items'][0]['title']}")
-            except IndexError:
-                await ctx.send(f"Sorry, i could not find a article matching that search.")
+                image_json = await fetch(session,
+                                         f"https://thewanderinginn.fandom.com/api.php?action=query&format=json&titles={sorted_json_data[0]['images'][0]['title']}&prop=imageinfo&iiprop=url")
+            image_search = json.loads(image_json)
+            image_urls = next(iter(image_search['query']['pages'].values()))
+            embed.set_thumbnail(url=image_urls['imageinfo'][0]['url'])
+        except KeyError:
+            pass
+        await ctx.send(embed=embed)
 
     @commands.command(
         name="Find",
