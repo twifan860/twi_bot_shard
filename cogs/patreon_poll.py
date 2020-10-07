@@ -157,7 +157,6 @@ class PollCog(commands.Cog, name="Poll"):
         hidden=False
     )
     @commands.cooldown(1, 300, commands.BucketType.channel)
-    @commands.check(is_bot_channel)
     async def poll(self, ctx, x=None):
         if is_bot_channel(ctx):
             self.poll.reset_cooldown(ctx)
