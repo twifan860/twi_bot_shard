@@ -284,6 +284,7 @@ class StatsCogs(commands.Cog, name="stats"):
             FROM messages 
             WHERE created_at >= NOW() - INTERVAL '1 DAY' 
             AND server_id = 346842016480755724 
+            AND is_bot = FALSE
             GROUP BY channel_name 
             ORDER BY total DESC
             """)
@@ -291,7 +292,7 @@ class StatsCogs(commands.Cog, name="stats"):
             logging.error(
                 f"No messages found in guild 346842016480755724 during the last {datetime.now() - timedelta(hours=24)} - {datetime.now()}")
         else:
-            message += "==== Stats for the last 24 hours ====\n"
+            message += "==== Stats: last 24 hours ====\n"
             message += "==== Messages stats ====\n"
             for result in messages_result:
                 message += f"{result['channel_name']}: {result['total']}\n"
