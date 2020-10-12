@@ -274,6 +274,7 @@ class StatsCogs(commands.Cog, name="stats"):
 
     @tasks.loop(hours=24)
     async def stats_loop(self):
+        logging.info("Starting daily server activity stats gathering")
         message = ""
         messages_result = await self.bot.pg_con.fetch(
             """         
@@ -309,7 +310,10 @@ class StatsCogs(commands.Cog, name="stats"):
                 await channel.send(string)
                 await asyncio.sleep(0.5)
         else:
-            await channel.send(message)
+            try:
+                await channel.send(message)
+            except Exception as e:
+                logging.error(f"Could not post stats_loop to channel {channel.name} - {e}")
 
 
 def setup(bot):
