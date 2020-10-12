@@ -121,7 +121,7 @@ class StatsCogs(commands.Cog, name="stats"):
             logging.info(f"Starting with {channel.name}")
             if channel.permissions_for(channel.guild.me).read_message_history:
                 last_message = await self.bot.pg_con.fetchrow(
-                    'SELECT created_at FROM messages WHERE "channel_ID" = $1 ORDER BY created_at DESC LIMIT 1',
+                    'SELECT created_at FROM messages WHERE channel_id = $1 ORDER BY created_at DESC LIMIT 1',
                     channel.id)
                 if last_message is not None:
                     first = last_message['created_at']
@@ -283,7 +283,7 @@ class StatsCogs(commands.Cog, name="stats"):
             SELECT COUNT(*) total, channel_name 
             FROM messages 
             WHERE created_at >= NOW() - INTERVAL '1 DAY' 
-            AND "server_ID" = 346842016480755724 
+            AND server_id = 346842016480755724 
             GROUP BY channel_name 
             ORDER BY total DESC
             """)
