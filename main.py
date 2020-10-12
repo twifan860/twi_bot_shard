@@ -8,8 +8,10 @@ import discord
 from discord.ext import commands, tasks
 
 import secrets
+import os
 
-logging.basicConfig(filename='cognita.log',
+wd = os.path.expanduser('~')
+logging.basicConfig(filename=f'{wd}/twi_bot_shard/cognita.log',
                     format='%(asctime)s :: %(levelname)-8s :: %(filename)s :: %(message)s',
                     level=logging.INFO)
 logging.info("Cognita starting")
