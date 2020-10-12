@@ -1,3 +1,4 @@
+import logging
 import sys
 import traceback
 from itertools import cycle
@@ -7,6 +8,11 @@ import discord
 from discord.ext import commands, tasks
 
 import secrets
+
+logging.basicConfig(filename='cognita.log',
+                    format='%(asctime)s :: %(levelname)-8s :: %(filename)s :: %(message)s',
+                    level=logging.INFO)
+logging.info("Cognita starting")
 
 bot = commands.Bot(
     command_prefix='!',
@@ -19,12 +25,15 @@ cogs = ['cogs.gallery', 'cogs.links_tags', 'cogs.patreon_poll', 'cogs.twi', 'cog
 
 @bot.event
 async def on_ready():
+    logging.info("Loading in Cogs")
     for extension in cogs:
         try:
             bot.load_extension(extension)
         except Exception as e:
+            logging.error(f"Failed to load cog {extension} - {e}")
             print(f'Failed to load extension {extension}.', file=sys.stderr)
             traceback.print_exc()
+    logging.info("Cogs loaded")
     stats_cog = bot.get_cog("stats")
     bot.remove_listener(stats_cog.save_listener, name="on_message")
     bot.remove_listener(stats_cog.message_deleted, name="on_raw_message_delete")
@@ -33,10 +42,17 @@ async def on_ready():
     bot.remove_listener(stats_cog.reaction_remove, name="on_raw_reaction_remove")
     status_loop.start()
     print(f'Logged in as: {bot.user.name}\nVersion: {discord.__version__}\n')
+    logging.info(f'Logged in as: {bot.user.name}\nVersion: {discord.__version__}\n')
 
 
 async def create_db_pool():
-    bot.pg_con = await asyncpg.create_pool(database="testDB", user=secrets.DB_user, password=secrets.DB_pass)
+    try:
+        bot.pg_con = await asyncpg.create_pool(database="testDB", user=secrets.DB_user, password=secrets.DB_pass)
+    except Exception as e:
+        logging.critical(f"{type(e).__name__} - {e}")
+        sys.exit("Failed to connect to database")
+
+    logging.info("created database connection")
 
 
 status = cycle(["Killing the mages of Wistram",
@@ -57,19 +73,30 @@ async def status_loop():
 
 @bot.event
 async def on_command_error(ctx, error):
+    logging.warning(f"{type(error).__name__} - {error}")
     if hasattr(ctx.command, "on_error"):
         return
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Please pass an argument")
+        await ctx.send(error)
     elif isinstance(error, commands.NotOwner):
         await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
     elif isinstance(error, commands.MissingRole):
         await ctx.send("I'm sorry, you don't seem to have the required role for that")
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f"That command is on cooldown, please wait a bit.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send(f"Error: {error}")
+    elif isinstance(error, discord.NotFound):
+        await ctx.send(f"I could not find that message - {error}")
+    elif isinstance(error, discord.Forbidden):
+        await ctx.send(f"Error: I don't have the right permissions for that. - {error}")
 
 
-# TODO: Allow to switch page (show more results) on !find
+@bot.event
+async def on_command(ctx):
+    logging.info(
+        f"{ctx.author.name} invoked {ctx.command} with arugments {ctx.kwargs} in channel {ctx.channel.name} from guild {ctx.guild.name}")
+
 
 bot.loop.run_until_complete(create_db_pool())
 bot.run(secrets.bot_token)

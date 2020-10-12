@@ -1,9 +1,11 @@
 import asyncio
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
 
 import asyncpg
 import discord
 from discord.ext import commands
+from discord.ext import tasks
 from discord.ext.commands import Cog
 
 
@@ -30,12 +32,15 @@ async def save_reaction(self, reaction):
         animated = False
         emoji_id = None
         url = None
-    for user in await reaction.users().flatten():
-        await self.bot.pg_con.execute("INSERT INTO reactions "
-                                      "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
-                                      emoji,
-                                      reaction.message.id, user.id,
-                                      name, animated, emoji_id, str(url), datetime.now())
+    try:
+        for user in await reaction.users().flatten():
+            await self.bot.pg_con.execute("INSERT INTO reactions "
+                                          "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+                                          emoji,
+                                          reaction.message.id, user.id,
+                                          name, animated, emoji_id, str(url), datetime.now())
+    except Exception as e:
+        logging.error(f"Failed to insert reaction into db. {e}")
 
 
 async def save_message(self, message):
