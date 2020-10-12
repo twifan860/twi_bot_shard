@@ -291,7 +291,8 @@ class StatsCogs(commands.Cog, name="stats"):
             logging.error(
                 f"No messages found in guild 346842016480755724 during the last {datetime.now() - timedelta(hours=24)} - {datetime.now()}")
         else:
-            message += ""
+            message += "==== Stats for the last 24 hours ====\n"
+            message += "==== Messages stats ====\n"
             for result in messages_result:
                 message += f"{result['channel_name']}: {result['total']}\n"
         user_join_leave_results = await self.bot.pg_con.fetchrow(
@@ -303,7 +304,7 @@ class StatsCogs(commands.Cog, name="stats"):
             AND server_id = 346842016480755724 
             """)
 
-        message += f"==== Memeber stats ====" \
+        message += f"==== Memeber stats ====\n" \
                    f"Joined: {user_join_leave_results['JOIN']}\n" \
                    f"Left: {user_join_leave_results['LEAVE']}"
         channel = self.bot.get_channel(297916314239107072)
