@@ -216,7 +216,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
                               f"{'<:99CC00:666429504998211594>' * 4}"
                               "\n[5.54](https://wanderinginn.com/2019/01/22/5-54-2/)")
         embed.add_field(name="Magnolia charm skill",
-                        value="#FDDBFF, #FFB8FD, #FD78FF, #FB00FF\n"
+                        value="#FDDBFF, #FFB8FD,\n#FD78FF, #FB00FF\n"
                               "<:FDDBFF:674370583412080670><:FFB8FD:674385325572751371><:FD78FF:674385325208109088><:FB00FF:674385325522681857>"
                               "\n[2.31](https://wanderinginn.com/2017/06/21/2-31/)")
         await ctx.send(embed=embed)
@@ -248,7 +248,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
         hidden=False,
     )
     @commands.check(admin_or_me_check)
-    async def updatePassword(self, ctx, password, link):
+    async def update_password(self, ctx, password, link):
         await self.bot.pg_con.execute(
             "INSERT INTO password_link(password, link, user_id, date) VALUES ($1, $2, $3, $4)",
             password, link, ctx.author.id, ctx.message.created_at
