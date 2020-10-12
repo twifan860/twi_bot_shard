@@ -1,3 +1,5 @@
+import logging
+
 from discord.ext import commands
 
 
@@ -17,6 +19,7 @@ class OwnerCog(commands.Cog, name="Owner"):
             self.bot.load_extension(cog)
         except Exception as e:
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+            logging.error(f'{type(e).__name__} - {e}')
         else:
             await ctx.send('**`SUCCESS`**')
 
@@ -30,6 +33,7 @@ class OwnerCog(commands.Cog, name="Owner"):
             self.bot.unload_extension(cog)
         except Exception as e:
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+            logging.error(f'{type(e).__name__} - {e}')
         else:
             await ctx.send('**`SUCCESS`**')
 
@@ -44,6 +48,7 @@ class OwnerCog(commands.Cog, name="Owner"):
             self.bot.load_extension(cog)
         except Exception as e:
             await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+            logging.error(f'{type(e).__name__} - {e}')
         else:
             await ctx.send('**`SUCCESS`**')
 

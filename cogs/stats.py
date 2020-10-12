@@ -128,10 +128,12 @@ class StatsCogs(commands.Cog, name="stats"):
                 else:
                     first = datetime.strptime('2015-01-01', '%Y-%m-%d')
                 logging.info(f"Last message at {first}")
+                count = 0
                 async for message in channel.history(limit=None, after=first, oldest_first=True):
+                    count += 1
                     await save_message(self, message)
                     await asyncio.sleep(0.05)
-                logging.info(f"{channel.name} Done")
+                logging.info(f"{channel.name} Done. saved {count} messages")
             else:
                 logging.info(f"I was not allowed access to {channel.name}")
         logging.info("!save completed")
@@ -289,7 +291,7 @@ class StatsCogs(commands.Cog, name="stats"):
             logging.error(
                 f"No messages found in guild 346842016480755724 during the last {datetime.now() - timedelta(hours=24)} - {datetime.now()}")
         else:
-            message += "Channel: Total messages\n"
+            message += ""
             for result in messages_result:
                 message += f"{result['channel_name']}: {result['total']}\n"
         user_join_leave_results = await self.bot.pg_con.fetchrow(
@@ -301,7 +303,8 @@ class StatsCogs(commands.Cog, name="stats"):
             AND server_id = 346842016480755724 
             """)
 
-        message += f"Joined: {user_join_leave_results['JOIN']}\n" \
+        message += f"==== Memeber stats ====" \
+                   f"Joined: {user_join_leave_results['JOIN']}\n" \
                    f"Left: {user_join_leave_results['LEAVE']}"
         channel = self.bot.get_channel(297916314239107072)
         if len(message) > 2000:
