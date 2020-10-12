@@ -307,14 +307,14 @@ class StatsCogs(commands.Cog, name="stats"):
                    f"Joined: {user_join_leave_results['JOIN']}\n" \
                    f"Left: {user_join_leave_results['LEAVE']}"
         channel = self.bot.get_channel(297916314239107072)
-        if len(message) > 2000:
-            str_list = [message[i:i + 2000] for i in range(0, len(message), 2000)]
+        if len(message) > 1900:
+            str_list = [message[i:i + 1900] for i in range(0, len(message), 1900)]
             for string in str_list:
-                await channel.send(string)
+                await channel.send(f"```coffeescript\n{string}\n```")
                 await asyncio.sleep(0.5)
         else:
             try:
-                await channel.send(message)
+                await channel.send(f"```coffeescript\n{message}\n```")
             except Exception as e:
                 logging.error(f"Could not post stats_loop to channel {channel.name} - {e}")
 
