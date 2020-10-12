@@ -96,6 +96,7 @@ class StatsCogs(commands.Cog, name="stats"):
 
     def __init__(self, bot):
         self.bot = bot
+        self.stats_loop.start()
 
     # @Cog.listener("on_message")
     # async def on_message_mass_ping(self, message):
@@ -268,6 +269,45 @@ class StatsCogs(commands.Cog, name="stats"):
         await self.bot.pg_con.execute("INSERT INTO join_leave VALUES($1,$2,$3,$4,$5,$6,$7)",
                                       member.name, member.id, datetime.now(), "LEAVE",
                                       member.guild.name, member.guild.id, member.created_at)
+
+    @tasks.loop(hours=24)
+    async def stats_loop(self):
+        message = ""
+        messages_result = await self.bot.pg_con.fetch(
+            """         
+            SELECT COUNT(*) total, channel_name 
+            FROM messages 
+            WHERE created_at >= NOW() - INTERVAL '1 DAY' 
+            AND "server_ID" = 346842016480755724 
+            GROUP BY channel_name 
+            ORDER BY total DESC
+            """)
+        if not messages_result:
+            logging.error(
+                f"No messages found in guild 346842016480755724 during the last {datetime.now() - timedelta(hours=24)} - {datetime.now()}")
+        else:
+            message += "Channel: Total messages\n"
+            for result in messages_result:
+                message += f"{result['channel_name']}: {result['total']}\n"
+        user_join_leave_results = await self.bot.pg_con.fetchrow(
+            """         
+            SELECT
+            COUNT(*) filter (where join_or_leave = 'JOIN') as "JOIN",
+            COUNT(*) filter (where join_or_leave = 'LEAVE') as "LEAVE"
+            FROM join_leave WHERE date >= NOW() - INTERVAL '1 DAY'
+            AND server_id = 346842016480755724 
+            """)
+
+        message += f"Joined: {user_join_leave_results['JOIN']}\n" \
+                   f"Left: {user_join_leave_results['LEAVE']}"
+        channel = self.bot.get_channel(297916314239107072)
+        if len(message) > 2000:
+            str_list = [message[i:i + 2000] for i in range(0, len(message), 2000)]
+            for string in str_list:
+                await channel.send(string)
+                await asyncio.sleep(0.5)
+        else:
+            await channel.send(message)
 
 
 def setup(bot):
