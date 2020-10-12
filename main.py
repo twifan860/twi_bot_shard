@@ -5,10 +5,10 @@ from itertools import cycle
 
 import asyncpg
 import discord
+import os
 from discord.ext import commands, tasks
 
 import secrets
-import os
 
 wd = os.path.expanduser('~')
 logging.basicConfig(filename=f'{wd}/twi_bot_shard/cognita.log',
