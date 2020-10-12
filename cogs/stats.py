@@ -118,6 +118,7 @@ class StatsCogs(commands.Cog, name="stats"):
     async def save(self, ctx):
         channels = ctx.guild.text_channels
         for channel in channels:
+            logging.info(f"Starting with {channel.name}")
             if channel.permissions_for(channel.guild.me).read_message_history:
                 last_message = await self.bot.pg_con.fetchrow(
                     'SELECT created_at FROM messages WHERE "channel_ID" = $1 ORDER BY created_at DESC LIMIT 1',
@@ -126,13 +127,14 @@ class StatsCogs(commands.Cog, name="stats"):
                     first = last_message['created_at']
                 else:
                     first = datetime.strptime('2015-01-01', '%Y-%m-%d')
+                logging.info(f"Last message at {first}")
                 async for message in channel.history(limit=None, after=first, oldest_first=True):
                     await save_message(self, message)
                     await asyncio.sleep(0.05)
-                print(f"{channel.name} Done")
+                logging.info(f"{channel.name} Done")
             else:
-                print(f"I was not allowed access to {channel.name}")
-        print("Done!")
+                logging.info(f"I was not allowed access to {channel.name}")
+        logging.info("!save completed")
         if self.save_listener not in self.bot.extra_events['on_message']:
             self.bot.add_listener(self.save_listener, name='on_message')
         if self.message_deleted not in self.bot.extra_events['on_raw_message_delete']:
