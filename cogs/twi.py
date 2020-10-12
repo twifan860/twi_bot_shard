@@ -79,7 +79,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
         hidden=False,
     )
     async def wiki(self, ctx, *, query):
-        embed = discord.Embed(title=f"Wiki results from **{query}**")
+        embed = discord.Embed(title=f"Wiki results search **{query}**")
         async with aiohttp.ClientSession() as session:
             html = await fetch(session,
                                f"https://thewanderinginn.fandom.com/api.php?action=query&generator=search&gsrsearch={query}&format=json&prop=info|images&inprop=url")
@@ -94,8 +94,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             async with aiohttp.ClientSession() as session:
                 image_json = await fetch(session,
                                          f"https://thewanderinginn.fandom.com/api.php?action=query&format=json&titles={sorted_json_data[0]['images'][0]['title']}&prop=imageinfo&iiprop=url")
-            image_search = json.loads(image_json)
-            image_urls = next(iter(image_search['query']['pages'].values()))
+            image_urls = next(iter(json.loads(image_json)['query']['pages'].values()))
             embed.set_thumbnail(url=image_urls['imageinfo'][0]['url'])
         except KeyError:
             pass

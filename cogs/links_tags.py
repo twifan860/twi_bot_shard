@@ -14,10 +14,10 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def link(self, ctx, user_input):
-        query_r = await self.bot.pg_con.fetch("SELECT content, title FROM tags WHERE lower(title) = lower($1)",
-                                              user_input)
+        query_r = await self.bot.pg_con.fetchrow("SELECT content, title FROM tags WHERE lower(title) = lower($1)",
+                                                 user_input)
         if query_r:
-            await ctx.send(f"{query_r[0]['title']}: {query_r[0]['content']}")
+            await ctx.send(f"{query_r['title']}: {query_r['content']}")
         else:
             await ctx.send(f"I could not find a link with the title **{user_input}**")
 
@@ -40,13 +40,13 @@ class LinkTags(commands.Cog, name="Links"):
         usage='[url][title][tag]',
         hidden=False,
     )
-    async def add_link(self, ctx, content, title, input_tag=None):
+    async def add_link(self, ctx, content, title, tag=None):
         try:
             await self.bot.pg_con.execute(
                 "INSERT INTO tags(content, tag, user_who_added, id_user_who_added, time_added, title) "
                 "VALUES ($1,$2,$3,$4,now(),$5)",
-                content, input_tag, ctx.author.display_name, ctx.author.id, title)
-            await ctx.send(f"Added Link: {title}\nLink: <{content}>\nTag: {input_tag}")
+                content, tag, ctx.author.display_name, ctx.author.id, title)
+            await ctx.send(f"Added Link: {title}\nLink: <{content}>\nTag: {tag}")
         except asyncpg.exceptions.UniqueViolationError:
             await ctx.send("That name is already in the list.")
 

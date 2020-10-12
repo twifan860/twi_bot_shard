@@ -117,20 +117,22 @@ class OtherCogs(commands.Cog, name="Other"):
 
     @commands.command(
         name="addQuote",
-        aliases = ['aq']
+        aliases=['aq']
     )
     async def addquote(self, ctx, *, quote):
-        await self.bot.pg_con.execute("INSERT INTO quotes(quote, author, author_id, time, tokens) VALUES ($1,$2,$3,now(),to_tsvector($4))",
-                                      quote, ctx.author.display_name, ctx.author.id, quote)
+        await self.bot.pg_con.execute(
+            "INSERT INTO quotes(quote, author, author_id, time, tokens) VALUES ($1,$2,$3,now(),to_tsvector($4))",
+            quote, ctx.author.display_name, ctx.author.id, quote)
         row_number = await self.bot.pg_con.fetchrow("SELECT COUNT(*) FROM quotes")
         await ctx.send(f"Added quote `{quote}` at index {row_number['count']}")
 
     @commands.command(
         name="findQuote",
-        aliases = ['fq']
+        aliases=['fq']
     )
     async def findquote(self, ctx, *, search):
-        results = await self.bot.pg_con.fetch("SELECT quote, ROW_NUMBER () OVER (ORDER BY time) FROM quotes WHERE tokens @@ to_tsquery($1);", search)
+        results = await self.bot.pg_con.fetch(
+            "SELECT quote, ROW_NUMBER () OVER (ORDER BY time) FROM quotes WHERE tokens @@ to_tsquery($1);", search)
         if len(results) > 1:
             index_res = "["
             iterres = iter(results)
@@ -139,7 +141,8 @@ class OtherCogs(commands.Cog, name="Other"):
                 index_res = f"{index_res}{str(result['row_number'])}, "
             index_res = index_res[:-2]
             index_res = f"{index_res}]"
-            await ctx.send(f"Quote {results[0]['row_number']}: {results[0]['quote']}\nThere is also results at {index_res}")
+            await ctx.send(
+                f"Quote {results[0]['row_number']}: {results[0]['quote']}\nThere is also results at {index_res}")
         elif len(results) == 1:
             await ctx.send(f"Quote {results[0]['row_number']}: {results[0]['quote']}")
         elif len(results) < 1:
@@ -147,15 +150,18 @@ class OtherCogs(commands.Cog, name="Other"):
         else:
             await ctx.send("How the fuck?")
 
-
     @commands.command(
         name="deleteQuote",
         aliases=['dq', 'removequote', 'rq']
     )
     async def deletequote(self, ctx, *, delete: int):
-        u_quote = await self.bot.pg_con.fetchrow("SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1", delete)
+        u_quote = await self.bot.pg_con.fetchrow(
+            "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
+            delete)
         if u_quote:
-            await self.bot.pg_con.execute("DELETE FROM quotes WHERE serial_id in (SELECT serial_id FROM QUOTES ORDER BY TIME LIMIT 1 OFFSET $1)", delete-1)
+            await self.bot.pg_con.execute(
+                "DELETE FROM quotes WHERE serial_id in (SELECT serial_id FROM QUOTES ORDER BY TIME LIMIT 1 OFFSET $1)",
+                delete - 1)
             await ctx.send(f"Deleted quote `{u_quote['quote']}` from position {u_quote['row_number']}")
         else:
             await ctx.send("Im sorry. I could not find a quote on that index")
@@ -166,21 +172,28 @@ class OtherCogs(commands.Cog, name="Other"):
     )
     async def quote(self, ctx, index: int = None):
         if index is None:
-            u_quote = await self.bot.pg_con.fetchrow("SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x  ORDER BY random() LIMIT 1")
+            u_quote = await self.bot.pg_con.fetchrow(
+                "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x  ORDER BY random() LIMIT 1")
         else:
-            u_quote = await self.bot.pg_con.fetchrow("SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1", index)
+            u_quote = await self.bot.pg_con.fetchrow(
+                "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
+                index)
         if u_quote:
             await ctx.send(f"Quote {u_quote['row_number']}: `{u_quote['quote']}`")
         else:
             await ctx.send("Im sorry, i could not find a quote with that index value.")
+
     @commands.command(
         name="whoQuote",
-        aliases=['infoquote','iq','wq']
+        aliases=['infoquote', 'iq', 'wq']
     )
     async def whoquote(self, ctx, index: int):
-        u_quote = await self.bot.pg_con.fetchrow("SELECT author, author_id, time, row_number FROM (SELECT author, author_id, time, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1", index)
+        u_quote = await self.bot.pg_con.fetchrow(
+            "SELECT author, author_id, time, row_number FROM (SELECT author, author_id, time, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
+            index)
         if u_quote:
-            await ctx.send(f"Quote {u_quote['row_number']} was added by: {u_quote['author']} ({u_quote['author_id']}) at {u_quote['time']}")
+            await ctx.send(
+                f"Quote {u_quote['row_number']} was added by: {u_quote['author']} ({u_quote['author_id']}) at {u_quote['time']}")
         else:
             await ctx.send("Im sorry, i could not find a quote with that index value.")
     @commands.command(
