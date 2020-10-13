@@ -289,13 +289,15 @@ class StatsCogs(commands.Cog, name="stats"):
             ORDER BY total DESC
             """)
         if not messages_result:
+            length = 6
             logging.error(
                 f"No messages found in guild 346842016480755724 during the last {datetime.now() - timedelta(hours=24)} - {datetime.now()}")
         else:
-            message += "==== Stats: last 24 hours ====\n"
+            length = len(messages_result[0]['total'])
+            message += "==== Stats last 24 hours ====\n"
             message += "==== Messages stats ====\n"
             for result in messages_result:
-                message += f"{result['channel_name']}: {result['total']}\n"
+                message += f"{result['total']:<{length}}:: {result['channel_name']}\n"
         user_join_leave_results = await self.bot.pg_con.fetchrow(
             """         
             SELECT
@@ -306,13 +308,13 @@ class StatsCogs(commands.Cog, name="stats"):
             """)
 
         message += f"==== Memeber stats ====\n" \
-                   f"Joined: {user_join_leave_results['JOIN']}\n" \
-                   f"Left: {user_join_leave_results['LEAVE']}"
+                   f"{user_join_leave_results['JOIN']:<{length}}:: Joined\n" \
+                   f"{user_join_leave_results['LEAVE']:<{length}}:: Left"
         channel = self.bot.get_channel(297916314239107072)
         if len(message) > 1900:
             str_list = [message[i:i + 1900] for i in range(0, len(message), 1900)]
             for string in str_list:
-                await channel.send(f"```coffeescript\n{string}\n```")
+                await channel.send(f"```asciidoc\n{string}\n```")
                 await asyncio.sleep(0.5)
         else:
             try:
