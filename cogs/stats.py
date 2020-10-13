@@ -293,7 +293,7 @@ class StatsCogs(commands.Cog, name="stats"):
             logging.error(
                 f"No messages found in guild 346842016480755724 during the last {datetime.now() - timedelta(hours=24)} - {datetime.now()}")
         else:
-            length = len(str(messages_result[0]['total']))
+            length = len(str(messages_result[0]['total'])) + 1
             message += "==== Stats last 24 hours ====\n"
             message += "==== Messages stats ====\n"
             for result in messages_result:
@@ -318,7 +318,7 @@ class StatsCogs(commands.Cog, name="stats"):
                 await asyncio.sleep(0.5)
         else:
             try:
-                await channel.send(f"```coffeescript\n{message}\n```")
+                await channel.send(f"```asciidoc\n{message}\n```")
             except Exception as e:
                 logging.error(f"Could not post stats_loop to channel {channel.name} - {e}")
 
