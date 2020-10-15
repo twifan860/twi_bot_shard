@@ -120,16 +120,21 @@ class StatsCogs(commands.Cog, name="stats"):
         for channel in channels:
             logging.info(f"Starting with {channel.name}")
             if channel.permissions_for(channel.guild.me).read_message_history:
+                logging.debug("Fetching last row")
                 last_message = await self.bot.pg_con.fetchrow(
                     'SELECT created_at FROM messages WHERE channel_id = $1 ORDER BY message_id DESC LIMIT 1',
                     channel.id)
+                logging.debug(f"Fetching done. found {last_message}")
                 if last_message is not None:
+                    logging.debug("Last row found")
                     first = last_message['created_at']
                 else:
+                    logging.debug("No last row found")
                     first = datetime.strptime('2015-01-01', '%Y-%m-%d')
                 logging.info(f"Last message at {first}")
                 count = 0
                 async for message in channel.history(limit=None, after=first, oldest_first=True):
+                    logging.debug(f"Saving {message.id} to database")
                     count += 1
                     await save_message(self, message)
                     await asyncio.sleep(0.05)
@@ -321,6 +326,7 @@ class StatsCogs(commands.Cog, name="stats"):
                 await channel.send(f"```asciidoc\n{message}\n```")
             except Exception as e:
                 logging.error(f"Could not post stats_loop to channel {channel.name} - {e}")
+        logging.info("Daily stats report done")
 
 
 def setup(bot):
