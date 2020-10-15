@@ -1,4 +1,5 @@
 import logging
+import ssl
 import sys
 import traceback
 from itertools import cycle
@@ -10,8 +11,11 @@ from discord.ext import commands, tasks
 
 import secrets
 
-wd = os.path.expanduser('~')
-logging.basicConfig(filename=f'{wd}/twi_bot_shard/cognita.log',
+context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+home = os.path.expanduser('~')
+context.load_verify_locations(f"{home}/ssl-cert/server-ca.pem")
+context.load_cert_chain(f"{home}/ssl-cert/client-cert.pem", f"{home}/ssl-cert/client-key.pem")
+logging.basicConfig(filename=f'{home}/twi_bot_shard/cognita.log',
                     format='%(asctime)s :: %(levelname)-8s :: %(filename)s :: %(message)s',
                     level=logging.INFO)
 logging.info("Cognita starting")
@@ -49,7 +53,9 @@ async def on_ready():
 
 async def create_db_pool():
     try:
-        bot.pg_con = await asyncpg.create_pool(database="testDB", user=secrets.DB_user, password=secrets.DB_pass)
+        bot.pg_con = await asyncpg.create_pool(database=secrets.database, user=secrets.DB_user,
+                                               password=secrets.DB_password,
+                                               host=secrets.host, ssl=context)
     except Exception as e:
         logging.critical(f"{type(e).__name__} - {e}")
         sys.exit("Failed to connect to database")
