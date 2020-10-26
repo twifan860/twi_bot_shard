@@ -120,7 +120,8 @@ class StatsCogs(commands.Cog, name="stats"):
         for channel in channels:
             logging.info(f"Starting with {channel.name}")
             if channel.permissions_for(channel.guild.me).read_message_history:
-                logging.debug("Fetching last row")
+                logging.debug(
+                    f"Running sql: SELECT created_at FROM messages WHERE channel_id = {channel.id} ORDER BY message_id DESC LIMIT 1")
                 last_message = await self.bot.pg_con.fetchrow(
                     'SELECT created_at FROM messages WHERE channel_id = $1 ORDER BY message_id DESC LIMIT 1',
                     channel.id)
