@@ -155,7 +155,7 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     @commands.command(
         name="ColoredText",
         brief="List of all the different colored texts in twi",
-        aliases=['ct', 'textcolor', 'tc']
+        aliases=['ct', 'textcolor', 'tc', 'color', 'colour']
     )
     async def colored_text(self, ctx):
         embed = discord.Embed(title="Twi's different colored text")
