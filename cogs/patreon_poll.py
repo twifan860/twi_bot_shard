@@ -57,7 +57,7 @@ async def get_poll(bot):
                             "expired, num_options) "
                             "VALUES ($1,$2,$3,$4,$5,$6,$7, TRUE, $8)",
                             posts['relationships']['poll']['links']['related'],
-                            "https://www.patreon.com" + posts['attributes']['patreon_url'],
+                            posts['attributes']['patreon_url'],
                             int(posts['relationships']['poll']['data']['id']),
                             open_at_converted,
                             closes_at_converted,
