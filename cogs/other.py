@@ -213,7 +213,7 @@ class OtherCogs(commands.Cog, name="Other"):
 
     @commands.command(
         name="artistColor",
-        aliases=['artcolor', 'artistcolor', 'artcolour', 'artistcolour']
+        aliases=['artcolor', 'artcolour', 'artistcolour']
     )
     @commands.has_role(730704163792748625)
     async def artistcolor(self, ctx):
