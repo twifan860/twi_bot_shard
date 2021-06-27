@@ -19,11 +19,13 @@ logging.basicConfig(filename=f'{home}/twi_bot_shard/cognita.log',
                     format='%(asctime)s :: %(levelname)-8s :: %(filename)s :: %(message)s',
                     level=logging.DEBUG)
 logging.info("Cognita starting")
-
+intents = discord.Intents.default()  # All but the two privileged ones
+intents.members = True  # Subscribe to the Members intent
 bot = commands.Bot(
     command_prefix='!',
     description="The Wandering Inn helper",
-    case_insensitive=True)
+    case_insensitive=True,
+    intents=intents)
 
 cogs = ['cogs.gallery', 'cogs.links_tags', 'cogs.patreon_poll', 'cogs.twi', 'cogs.owner', 'cogs.other', 'cogs.mods',
         'cogs.stats']
