@@ -120,10 +120,11 @@ class StatsCogs(commands.Cog, name="stats"):
         members_list = ctx.guild.members
         logging.info(f"{members_list=}")
         user_ids = await self.bot.pg_con.fetch("SELECT user_id FROM users")
+        flat_list = [item for sublist in user_ids for item in sublist]
         logging.info(f"{user_ids=}")
         for member in members_list:
             logging.info(f"{member=}")
-            if member.id not in user_ids:
+            if member.id not in flat_list:
                 await self.bot.pg_con.execute("INSERT INTO "
                                               "users(user_id, discriminator, current_display_name, date_created, "
                                               "current_avatar_url, bot, current_username) "
