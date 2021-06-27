@@ -128,7 +128,7 @@ class StatsCogs(commands.Cog, name="stats"):
                 await self.bot.pg_con.execute("INSERT INTO "
                                               "users(user_id, discriminator, current_display_name, date_created, current_avatar_url, bot, current_username, servers) "
                                               "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
-                                              member.id, int(member.discriminator), member.display_name, member.created_at, member.avatar_url, member.bot, member.name, {"SERVER NAME" : ctx.guild.name, "SERVER ID": ctx.guild.id})
+                                              member.id, int(member.discriminator), member.display_name, member.created_at, str(member.avatar_url), member.bot, member.name, {"SERVER NAME" : ctx.guild.name, "SERVER ID": ctx.guild.id})
             else:
                 logging.info("Member already in db")
 
