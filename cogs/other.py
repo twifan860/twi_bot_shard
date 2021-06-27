@@ -1,6 +1,6 @@
 import discord
+import logging
 from discord.ext import commands
-
 
 class OtherCogs(commands.Cog, name="Other"):
     def __init__(self, bot):
@@ -26,6 +26,7 @@ class OtherCogs(commands.Cog, name="Other"):
         if member is None:
             member = ctx.author
         embed = discord.Embed(title="Avatar", color=discord.Color(0x3cd63d))
+        logging.debug(f"Avatar url: {member.avatar_url}")
         embed.set_image(url=member.avatar_url)
         await ctx.send(embed=embed)
 
