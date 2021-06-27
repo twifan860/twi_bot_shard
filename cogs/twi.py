@@ -1,9 +1,12 @@
-import json
-
 import aiohttp
+import asyncpg
 import discord
+import json
+import logging
+import praw
 from discord.ext import commands
 from googleapiclient.discovery import build
+from praw.exceptions import RedditAPIException
 
 import secrets
 from cogs.patreon_poll import fetch
@@ -27,6 +30,13 @@ def google_search(search_term, api_key, cse_id, **kwargs):
 
 async def is_bot_channel(ctx):
     return ctx.channel.id == 361694671631548417
+
+
+reddit = praw.Reddit(client_id=secrets.client_id,
+                     client_secret=secrets.client_secret,
+                     user_agent=secrets.user_agent,
+                     username=secrets.username,
+                     password=secrets.password)
 
 
 class TwiCog(commands.Cog, name="The Wandering Inn"):
@@ -253,6 +263,34 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             "INSERT INTO password_link(password, link, user_id, date) VALUES ($1, $2, $3, $4)",
             password, link, ctx.author.id, ctx.message.created_at
         )
+
+    @commands.command(name="reddit")
+    async def reddit_verification(self, ctx, username):
+        if username.startswith("/"):
+            logging.info("Removing first /")
+            username = username[1:]
+        if username.startswith("u/"):
+            logging.info("Removing u/")
+            username = username[2:]
+        logging.info(f"Trying to find user {username}")
+        try:
+            reddit.subreddit("TWI_Patreon").contributor.add(username)
+        except RedditAPIException as exception:
+            for subexception in exception.items:
+                logging.error(subexception)
+        try:
+            await self.bot.pg_con.execute(
+                """INSERT INTO twi_reddit(
+                time_added, discord_username, discord_id, reddit_username, currant_patreon, subreddit
+                ) 
+                VALUES (NOW(), $1, $2, $3, True, 'TWI_patreon')""",
+                ctx.author.name, ctx.author.id, username
+            )
+        except asyncpg.UniqueViolationError as e:
+            logging.exception(f'{e}')
+            dup_user = await self.bot.pg_con.fetchrow("SELECT reddit_username FROM twi_reddit WHERE discord_id = $1",
+                                                      ctx.author.id)
+            ctx.send(f"You are already in the list with username {dup_user['reddit_username']}")
 
 
 def setup(bot):
