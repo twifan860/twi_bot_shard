@@ -118,13 +118,16 @@ class StatsCogs(commands.Cog, name="stats"):
     async def save_users(self, ctx):
         logging.info(f"Fetching members list")
         members_list = ctx.guild.members
-        logging.info(f"{members_list=}")
-        user_ids = await self.bot.pg_con.fetch("SELECT user_id FROM users")
-        flat_list = [item for sublist in user_ids for item in sublist]
-        logging.info(f"{user_ids=}")
         for member in members_list:
-            logging.info(f"{member=}")
-            if member.id not in flat_list:
+            logging.debug(f"{member.display_name=}")
+        logging.debug(f"{members_list=}")
+        user_ids = await self.bot.pg_con.fetch("SELECT user_id FROM users")
+        flat_user_ids = [item for sublist in user_ids for item in sublist]
+        logging.debug(f"{flat_user_ids=}")
+        logging.debug(f"{user_ids=}")
+        for member in members_list:
+            logging.debug(f"{member=}")
+            if member.id not in flat_user_ids:
                 await self.bot.pg_con.execute("INSERT INTO "
                                               "users(user_id, discriminator, current_display_name, date_created, "
                                               "current_avatar_url, bot, current_username) "
