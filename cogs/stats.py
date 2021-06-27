@@ -111,6 +111,29 @@ class StatsCogs(commands.Cog, name="stats"):
     #                 f"{message.author.mention} has been muted for pinging more than 20 people in one message")
 
     @commands.command(
+        name="save_users",
+        hidden=True
+    )
+    @commands.check(admin_or_me_check)
+    async def save_users(self, ctx):
+        logging.info(f"Fetching members list")
+        members_list = ctx.guild.members
+        logging.info(members_list)
+        user_ids = await self.bot.pg_con.fetch("SELECT user_id FROM users")
+        logging.info(user_ids)
+        for member in members_list:
+            logging.info(member)
+            print(member)
+            if member.id not in user_ids:
+                await self.bot.pg_con.execute("INSERT INTO "
+                                              "users(user_id, discriminator, current_display_name, date_created, current_avatar_url, bot, current_username, servers) "
+                                              "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+                                              member.id, member.discriminator, member.display_name, member.created_at, member.avatar_url, member.bot, member.name, ["SERVER NAME" : ctx.guild.name, "SERVER ID": ctx.guild.id])
+            else:
+                logging.info("Member already in db")
+
+
+    @commands.command(
         name="save",
         hidden=True
     )
