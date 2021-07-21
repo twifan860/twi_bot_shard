@@ -1,12 +1,12 @@
-import logging
-import ssl
 import sys
-import traceback
 from itertools import cycle
 
 import asyncpg
 import discord
+import logging
 import os
+import ssl
+import traceback
 from discord.ext import commands, tasks
 
 import secrets
@@ -17,7 +17,7 @@ context.load_verify_locations(f"{home}/ssl-cert/server-ca.pem")
 context.load_cert_chain(f"{home}/ssl-cert/client-cert.pem", f"{home}/ssl-cert/client-key.pem")
 logging.basicConfig(filename=f'{home}/twi_bot_shard/cognita.log',
                     format='%(asctime)s :: %(levelname)-8s :: %(filename)s :: %(message)s',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 logging.info("Cognita starting")
 intents = discord.Intents.default()  # All but the two privileged ones
 intents.members = True  # Subscribe to the Members intent
@@ -49,7 +49,6 @@ async def on_ready():
     bot.remove_listener(stats_cog.reaction_add, name="on_raw_reaction_add")
     bot.remove_listener(stats_cog.reaction_remove, name="on_raw_reaction_remove")
     status_loop.start()
-    print(f'Logged in as: {bot.user.name}\nVersion: {discord.__version__}\n')
     logging.info(f'Logged in as: {bot.user.name}\nVersion: {discord.__version__}\n')
 
 
@@ -70,10 +69,11 @@ status = cycle(["Killing the mages of Wistram",
                 "Keeping secrets",
                 "Hiding corpses",
                 "Mending Pirateaba's broken hands",
-                "Longing for Zelkyr",
+                "Longing for answers",
                 "Hoarding knowledge",
                 "Dusting off priceless artifacts",
-                "Praying for Mating Rituals 4"])
+                "Praying for Mating Rituals 4",
+                "Plotting demise of nosy half-elfs"])
 
 
 @tasks.loop(seconds=10)
@@ -105,7 +105,7 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_command(ctx):
     logging.info(
-        f"{ctx.author.name} invoked {ctx.command} with arugments {ctx.kwargs} in channel {ctx.channel.name} from guild {ctx.guild.name}")
+        f"{ctx.author.name} invoked {ctx.command} with arguments {ctx.kwargs} in channel {ctx.channel.name} from guild {ctx.guild.name}")
 
 
 bot.loop.run_until_complete(create_db_pool())
