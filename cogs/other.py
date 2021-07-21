@@ -2,6 +2,7 @@ import discord
 import logging
 from discord.ext import commands
 
+
 class OtherCogs(commands.Cog, name="Other"):
     def __init__(self, bot):
         self.bot = bot
@@ -232,7 +233,7 @@ class OtherCogs(commands.Cog, name="Other"):
     )
     async def role_list(self, ctx):
         roles = await self.bot.pg_con.fetch(
-            "SELECT id, name, required_role, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order ASC, name desc",
+            "SELECT id, name, required_role, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order, name desc",
             ctx.guild.id)
         embed = discord.Embed(title="Roles", color=discord.Color(0x3cd63d))
         embed.set_thumbnail(url=ctx.guild.icon_url)
@@ -247,7 +248,7 @@ class OtherCogs(commands.Cog, name="Other"):
     async def update_role_order(self, ctx, role, new_index: int):
         new_index = new_index - 1
         roles = await self.bot.pg_con.fetch(
-            "SELECT id, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order ASC, name DESC",
+            "SELECT id, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order, name DESC",
             ctx.guild.id)
         role_index = next((index for (index, d) in enumerate(roles) if d["id"] == int(role)), None)
         roles.insert(new_index, roles.pop(role_index))

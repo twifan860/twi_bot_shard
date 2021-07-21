@@ -1,6 +1,7 @@
 import asyncio
-import asyncpg
+import typing
 import dateparser
+import asyncpg
 import discord
 import logging
 from datetime import datetime, timedelta
@@ -44,15 +45,6 @@ async def save_reaction(self, reaction):
 
 
 async def save_message(self, message):
-    # roles = ""
-    # try:
-    #     for role in reversed(message.author.roles):
-    #         if role.is_default():
-    #             pass
-    #         else:
-    #             roles += f"{role.name},{role.id}]\n"
-    # except AttributeError:
-    #     pass
 
     for mention in message.mentions:
         await self.bot.pg_con.execute("INSERT INTO mentions(message_id, user_mention) VALUES ($1,$2)",
@@ -172,6 +164,7 @@ class StatsCogs(commands.Cog, name="stats"):
             await self.bot.pg_con.execute("INSERT INTO servers(server_id, server_name, creation_date) VALUES ($1,$2,$3)"
                                           " ON CONFLICT DO NOTHING ",
                                           guild.id, guild.name, guild.created_at)
+        await ctx.send("Done")
 
     @commands.command(
         name="save_channels",
@@ -191,6 +184,7 @@ class StatsCogs(commands.Cog, name="stats"):
                     logging.error(f'{type(e).__name__} - {e}')
                 except asyncpg.UniqueViolationError:
                     logging.debug("Already in DB")
+        await ctx.send("Done")
 
     @commands.command(
         name="save_categories",
@@ -210,6 +204,7 @@ class StatsCogs(commands.Cog, name="stats"):
                     logging.error(f'{type(e).__name__} - {e}')
                 except asyncpg.UniqueViolationError:
                     logging.debug("Already in DB")
+        await ctx.send("Done")
 
     @commands.command(
         name="save_roles",
@@ -224,11 +219,11 @@ class StatsCogs(commands.Cog, name="stats"):
                 if role.is_default():
                     continue
                 try:
-                    await  self.bot.pg_con.execute("INSERT INTO "
-                                                   "roles(id, name, color, created_at, hoisted, managed, position, guild_id) "
-                                                   "VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
-                                                   role.id, role.name, str(role.color), role.created_at, role.hoist,
-                                                   role.managed, role.position, guild.id)
+                    await self.bot.pg_con.execute("INSERT INTO "
+                                                  "roles(id, name, color, created_at, hoisted, managed, position, guild_id) "
+                                                  "VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
+                                                  role.id, role.name, str(role.color), role.created_at, role.hoist,
+                                                  role.managed, role.position, guild.id)
                 except asyncpg.UniqueViolationError:
                     logging.debug(f"Role already in DB")
                 for member in role.members:
@@ -237,6 +232,7 @@ class StatsCogs(commands.Cog, name="stats"):
                                                       member.id, role.id)
                     except asyncpg.UniqueViolationError:
                         logging.debug(f"connection already in DB {member} - {role}")
+        await ctx.send("Done")
 
     @commands.command(
         name="save_users_from_join_leave",
@@ -244,7 +240,7 @@ class StatsCogs(commands.Cog, name="stats"):
     )
     @commands.is_owner()
     async def save_users_from_join_leave(self, ctx):
-        jn_users = await self.bot.pg_con.fetch("SELECT user_name,user_id,created_at FROM join_leave")
+        jn_users = await self.bot.pg_con.fetch("SELECT user_id,created_at FROM join_leave")
         for user in jn_users:
             logging.debug(user)
             try:
@@ -255,6 +251,7 @@ class StatsCogs(commands.Cog, name="stats"):
 
             except asyncpg.UniqueViolationError:
                 logging.debug("Users already in DB")
+        await ctx.send("Done")
 
     @commands.command(
         name="save_channels_from_messages",
@@ -566,11 +563,11 @@ class StatsCogs(commands.Cog, name="stats"):
 
     @Cog.listener("on_guild_role_create")
     async def guild_role_create(self, role):
-        await  self.bot.pg_con.execute("INSERT INTO "
-                                       "roles(id, name, color, created_at, hoisted, managed, position, guild_id) "
-                                       "VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
-                                       role.id, role.name, str(role.color), role.created_at, role.hoist,
-                                       role.managed, role.position, role.guild.id)
+        await self.bot.pg_con.execute("INSERT INTO "
+                                      "roles(id, name, color, created_at, hoisted, managed, position, guild_id) "
+                                      "VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
+                                      role.id, role.name, str(role.color), role.created_at, role.hoist,
+                                      role.managed, role.position, role.guild.id)
 
     @Cog.listener("on_guild_role_delete")
     async def guild_role_delete(self, role):
@@ -671,7 +668,7 @@ class StatsCogs(commands.Cog, name="stats"):
         usage='[channel] [hours]',
         hidden=False,
     )
-    async def messagecount(self, ctx, channel: discord.TextChannel, *, time: typing.Union[int, str]):
+    async def message_count(self, ctx, channel: discord.TextChannel, *, time: typing.Union[int, str]):
         logging.debug(time)
         d_time = dateparser.parse(f'{time} ago')
         logging.debug(d_time)
@@ -680,6 +677,7 @@ class StatsCogs(commands.Cog, name="stats"):
             d_time, channel.id)
         await ctx.send(f"There is a total of {results} in channel {channel} during the last {d_time}")
         logging.info(f"total messages: {results['total']} in channel {channel.name}")
+
 
 def setup(bot):
     bot.add_cog(StatsCogs(bot))
