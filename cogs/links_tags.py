@@ -14,7 +14,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def link(self, ctx, user_input):
-        query_r = await self.bot.pg_con.fetchrow("SELECT content, title FROM tags WHERE lower(title) = lower($1)",
+        query_r = await self.bot.pg_con.fetchrow("SELECT content, title FROM links WHERE lower(title) = lower($1)",
                                                  user_input)
         if query_r:
             await ctx.send(f"{query_r['title']}: {query_r['content']}")
@@ -28,7 +28,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def links(self, ctx):
-        query_r = await self.bot.pg_con.fetch("SELECT title FROM tags ORDER BY title")
+        query_r = await self.bot.pg_con.fetch("SELECT title FROM links ORDER BY title")
         message = ""
         for tags in query_r:
             message = f"{message} `{tags['title']}`"
@@ -43,7 +43,7 @@ class LinkTags(commands.Cog, name="Links"):
     async def add_link(self, ctx, content, title, tag=None):
         try:
             await self.bot.pg_con.execute(
-                "INSERT INTO tags(content, tag, user_who_added, id_user_who_added, time_added, title) "
+                "INSERT INTO links(content, tag, user_who_added, id_user_who_added, time_added, title) "
                 "VALUES ($1,$2,$3,$4,now(),$5)",
                 content, tag, ctx.author.display_name, ctx.author.id, title)
             await ctx.send(f"Added Link: {title}\nLink: <{content}>\nTag: {tag}")
@@ -58,7 +58,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def delete_link(self, ctx, title):
-        result = await self.bot.pg_con.execute("DELETE FROM tags WHERE lower(title) = lower($1)", title)
+        result = await self.bot.pg_con.execute("DELETE FROM links WHERE lower(title) = lower($1)", title)
         if result == "DELETE 1":
             await ctx.send(f"Deleted link: **{title}**")
         else:
@@ -71,7 +71,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def tags(self, ctx):
-        query_r = await self.bot.pg_con.fetch("SELECT DISTINCT tag FROM tags ORDER BY tag")
+        query_r = await self.bot.pg_con.fetch("SELECT DISTINCT tag FROM links ORDER BY tag")
         message = ""
         for tags in query_r:
             message = f"{message} `{tags['tag']}`"
@@ -85,7 +85,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def tag(self, ctx, user_input):
-        query_r = await self.bot.pg_con.fetch("SELECT title FROM tags WHERE lower(tag) = lower($1) ORDER BY title",
+        query_r = await self.bot.pg_con.fetch("SELECT title FROM links WHERE lower(tag) = lower($1) ORDER BY title",
                                               user_input)
         if query_r:
             message = ""
