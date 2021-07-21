@@ -226,6 +226,81 @@ class OtherCogs(commands.Cog, name="Other"):
             await ctx.author.add_roles(artist_role)
             await ctx.send(f"I added {artist_role.name}")
 
+    @commands.command(
+        name="roles",
+        aliases=['rolelist', 'listroles']
+    )
+    async def role_list(self, ctx):
+        roles = await self.bot.pg_con.fetch(
+            "SELECT id, name, required_role, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order ASC, name desc",
+            ctx.guild.id)
+        embed = discord.Embed(title="Roles", color=discord.Color(0x3cd63d))
+        embed.set_thumbnail(url=ctx.guild.icon_url)
+        for role in roles:
+            embed.add_field(name=f"{role['name']}", value=role['id'], inline=False)
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name="update_role_order",
+        aliases=['uro']
+    )
+    async def update_role_order(self, ctx, role, new_index: int):
+        new_index = new_index - 1
+        roles = await self.bot.pg_con.fetch(
+            "SELECT id, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order ASC, name DESC",
+            ctx.guild.id)
+        role_index = next((index for (index, d) in enumerate(roles) if d["id"] == int(role)), None)
+        roles.insert(new_index, roles.pop(role_index))
+        for index, role in enumerate(roles):
+            await self.bot.pg_con.execute("UPDATE roles set display_order = $1 WHERE id = $2",
+                                          index, role['id'])
+
+    @commands.command(
+        name="add_role",
+        aliases=['ar']
+    )
+    async def add_role(self, ctx, role: int, alias: str, required_role: int = None):
+        try:
+            await ctx.send(f"{required_role=}, {alias=}, {role=}, {ctx.guild.id=}")
+            test = await self.bot.pg_con.execute(
+                "UPDATE roles SET self_assignable = TRUE, required_role = $1, alias = $2 where id = $3 and guild_id = $4",
+                required_role, alias, role, ctx.guild.id)
+            await ctx.send(test)
+        except Exception as e:
+            await ctx.send(e)
+
+    @commands.command(
+        name="remove_roll",
+        aliases=['rr'],
+        brief="removes a role from self assign list",
+        description="removes a role from the self assign list",
+        enable=True,
+        help="role",
+        hidden=False,
+        usage="!remove_roll [roll]",
+    )
+    async def remove_roll(self, ctx, role):
+        await self.bot.pg_con.execute("UPDATE roles SET self_assignable = FALSE where id = $1 AND guild_id = $2",
+                                      role, ctx.guild.id)
+
+    @commands.command(
+        name="role",
+        aliases=['requestrole', 'needrole', 'plzrole', 'r']
+    )
+    async def toggle_role(self, ctx, *, alias: discord.Role):
+        logging.info(f"{type(alias)}")
+        logging.info(f"{alias}")
+        ctx.send(type(alias))
+        if isinstance(alias, (int, float)):
+            await ctx.send(type(alias))
+        elif isinstance(alias, str):
+            await ctx.send(type(alias))
+        elif isinstance(alias, discord.role):
+            await ctx.send(type(alias))
+            await ctx.send(
+                "You don't need to ping the role, you can either use the Index value or name of the role instead")
+        print()
+
 
 def setup(bot):
     bot.add_cog(OtherCogs(bot))

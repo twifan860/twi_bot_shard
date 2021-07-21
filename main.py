@@ -25,12 +25,14 @@ logging.basicConfig(filename=f'{home}/twi_bot_shard/cognita.log',
                     format='%(asctime)s :: %(levelname)-8s :: %(filename)s :: %(message)s',
                     level=logging.INFO)
 logging.info("Cognita starting")
-
+intents = discord.Intents.default()  # All but the two privileged ones
+intents.members = True  # Subscribe to the Members intent
 bot = commands.Bot(
     command_prefix='!',
     description="The Wandering Inn helper",
     case_insensitive=True,
-    intent=intents)
+    intents=intents)
+
 
 cogs = ['cogs.gallery', 'cogs.links_tags', 'cogs.patreon_poll', 'cogs.twi', 'cogs.owner', 'cogs.other', 'cogs.mods',
         'cogs.stats']
@@ -54,7 +56,6 @@ async def on_ready():
     bot.remove_listener(stats_cog.reaction_add, name="on_raw_reaction_add")
     bot.remove_listener(stats_cog.reaction_remove, name="on_raw_reaction_remove")
     status_loop.start()
-    print(f'Logged in as: {bot.user.name}\nVersion: {discord.__version__}\n')
     logging.info(f'Logged in as: {bot.user.name}\nVersion: {discord.__version__}\n')
 
 
@@ -75,10 +76,11 @@ status = cycle(["Killing the mages of Wistram",
                 "Keeping secrets",
                 "Hiding corpses",
                 "Mending Pirateaba's broken hands",
-                "Longing for Zelkyr",
+                "Longing for answers",
                 "Hoarding knowledge",
                 "Dusting off priceless artifacts",
-                "Praying for Mating Rituals 4"])
+                "Praying for Mating Rituals 4",
+                "Plotting demise of nosy half-elfs"])
 
 
 @tasks.loop(seconds=10)
@@ -110,7 +112,7 @@ async def status_loop():
 @bot.event
 async def on_command(ctx):
     logging.info(
-        f"{ctx.author.name} invoked {ctx.command} with arugments {ctx.kwargs} in channel {ctx.channel.name} from guild {ctx.guild.name}")
+        f"{ctx.author.name} invoked {ctx.command} with arguments {ctx.kwargs} in channel {ctx.channel.name} from guild {ctx.guild.name}")
 
 
 bot.loop.run_until_complete(create_db_pool())
