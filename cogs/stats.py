@@ -1,5 +1,6 @@
 import asyncio
 import asyncpg
+import dateparser
 import discord
 import logging
 from datetime import datetime, timedelta
@@ -662,6 +663,23 @@ class StatsCogs(commands.Cog, name="stats"):
                 logging.error(f"Could not post stats_loop to channel {channel.name} - {e}")
         logging.info("Daily stats report done")
 
+    @commands.command(
+        name="messagecount",
+        brief="Retrive message count from a channel in the last x hours",
+        help="",
+        aliases=['mc', 'count'],
+        usage='[channel] [hours]',
+        hidden=False,
+    )
+    async def messagecount(self, ctx, channel: discord.TextChannel, *, time: typing.Union[int, str]):
+        logging.debug(time)
+        d_time = dateparser.parse(f'{time} ago')
+        logging.debug(d_time)
+        results = await self.bot.pg_con.fetchrow(
+            "SELECT count(*) total FROM messages WHERE created_at > $1 and channel_id = $2",
+            d_time, channel.id)
+        await ctx.send(f"There is a total of {results} in channel {channel} during the last {d_time}")
+        logging.info(f"total messages: {results['total']} in channel {channel.name}")
 
 def setup(bot):
     bot.add_cog(StatsCogs(bot))

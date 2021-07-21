@@ -11,6 +11,12 @@ from discord.ext import commands, tasks
 
 import secrets
 
+intents = discord.Intents.none()
+intents.members = True
+intents.emojis = True
+intents.guild_messages = True
+intents.guild_reactions = True
+
 context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
 home = os.path.expanduser('~')
 context.load_verify_locations(f"{home}/ssl-cert/server-ca.pem")
@@ -26,6 +32,7 @@ bot = commands.Bot(
     description="The Wandering Inn helper",
     case_insensitive=True,
     intents=intents)
+
 
 cogs = ['cogs.gallery', 'cogs.links_tags', 'cogs.patreon_poll', 'cogs.twi', 'cogs.owner', 'cogs.other', 'cogs.mods',
         'cogs.stats']
@@ -81,25 +88,25 @@ async def status_loop():
     await bot.change_presence(activity=discord.Game(next(status)))
 
 
-@bot.event
-async def on_command_error(ctx, error):
-    logging.warning(f"{type(error).__name__} - {error}")
-    if hasattr(ctx.command, "on_error"):
-        return
-    elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(error)
-    elif isinstance(error, commands.NotOwner):
-        await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
-    elif isinstance(error, commands.MissingRole):
-        await ctx.send("I'm sorry, you don't seem to have the required role for that")
-    elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(f"That command is on cooldown, please wait a bit.")
-    elif isinstance(error, commands.BadArgument):
-        await ctx.send(f"Error: {error}")
-    elif isinstance(error, discord.NotFound):
-        await ctx.send(f"I could not find that message - {error}")
-    elif isinstance(error, discord.Forbidden):
-        await ctx.send(f"Error: I don't have the right permissions for that. - {error}")
+# @bot.event
+# async def on_command_error(ctx, error):
+#     logging.warning(f"{type(error).__name__} - {error}")
+#     if hasattr(ctx.command, "on_error"):
+#         return
+#     elif isinstance(error, commands.MissingRequiredArgument):
+#         await ctx.send(error)
+#     elif isinstance(error, commands.NotOwner):
+#         await ctx.send(f"Sorry {ctx.author.display_name} only ~~Zelkyr~~ Sara may do that.")
+#     elif isinstance(error, commands.MissingRole):
+#         await ctx.send("I'm sorry, you don't seem to have the required role for that")
+#     elif isinstance(error, commands.CommandOnCooldown):
+#         await ctx.send(f"That command is on cooldown, please wait a bit.")
+#     elif isinstance(error, commands.BadArgument):
+#         await ctx.send(f"Error: {error}")
+#     elif isinstance(error, discord.NotFound):
+#         await ctx.send(f"I could not find that message - {error}")
+#     elif isinstance(error, discord.Forbidden):
+#         await ctx.send(f"Error: I don't have the right permissions for that. - {error}")
 
 
 @bot.event
