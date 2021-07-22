@@ -1,8 +1,9 @@
+import json
+import logging
+
 import aiohttp
 import asyncpg
 import discord
-import json
-import logging
 import praw
 from discord.ext import commands
 from googleapiclient.discovery import build
@@ -53,11 +54,14 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
         allowed_channel_ids = [620021401516113940, 346842161704075265, 521403093892726785, 362248294849576960,
                                359864559361851392, 668721870488469514]
         if ctx.message.channel.id in allowed_channel_ids:
-            password = await self.bot.pg_con.fetchrow("SELECT password, link "
-                                                      "FROM password_link "
-                                                      "WHERE password IS NOT NULL "
-                                                      "ORDER BY serial_id DESC "
-                                                      "LIMIT 1")
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                password = await self.bot.pg_con.fetchrow("SELECT password, link "
+                                                          "FROM password_link "
+                                                          "WHERE password IS NOT NULL "
+                                                          "ORDER BY serial_id DESC "
+                                                          "LIMIT 1")
+            await self.bot.pg_con.release(connection)
             await ctx.send(password['password'])
             await ctx.send(f"<{password['link']}>")
         else:
@@ -142,17 +146,23 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     )
     async def invis_text(self, ctx, *, chapter=None):
         if chapter is None:
-            invis_text_chapters = await self.bot.pg_con.fetch(
-                "SELECT title, COUNT(*) FROM invisible_text_twi GROUP BY title, date ORDER BY date"
-            )
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                invis_text_chapters = await self.bot.pg_con.fetch(
+                    "SELECT title, COUNT(*) FROM invisible_text_twi GROUP BY title, date ORDER BY date"
+                )
+            await self.bot.pg_con.release(connection)
             embed = discord.Embed(title="Chapters with invisible text")
             for posts in invis_text_chapters:
                 embed.add_field(name=f"Chapter: {posts['title']}", value=f"{posts['count']}", inline=False)
             await ctx.send(embed=embed)
         else:
-            texts = await self.bot.pg_con.fetch(
-                "SELECT title, content FROM invisible_text_twi WHERE lower(title) similar to lower($1)",
-                chapter)
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                texts = await self.bot.pg_con.fetch(
+                    "SELECT title, content FROM invisible_text_twi WHERE lower(title) similar to lower($1)",
+                    chapter)
+            await self.bot.pg_con.release(connection)
             if texts:
                 embed = discord.Embed(title=f"Search for: **{chapter}** invisible text")
                 for text in texts:
@@ -234,20 +244,29 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.id in {579061805335183370, 579060950867640332}:
-            old_pin = await self.bot.pg_con.fetchrow("SELECT * FROM webhook_pins_twi WHERE webhook_id = $1",
-                                                     message.webhook_id)
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                old_pin = await self.bot.pg_con.fetchrow("SELECT * FROM webhook_pins_twi WHERE webhook_id = $1",
+                                                         message.webhook_id)
+            await self.bot.pg_con.release(connection)
             if old_pin:
-                await self.bot.pg_con.execute(
-                    "UPDATE webhook_pins_twi set message_id = $1, posted_date = $2 WHERE webhook_id = $3",
-                    message.id, message.created_at, message.webhook_id)
+                connection = await self.bot.pg_con.acquire()
+                async with connection.transaction():
+                    await self.bot.pg_con.execute(
+                        "UPDATE webhook_pins_twi set message_id = $1, posted_date = $2 WHERE webhook_id = $3",
+                        message.id, message.created_at, message.webhook_id)
+                await self.bot.pg_con.release(connection)
                 for pin in await message.channel.pins():
                     if pin.id == old_pin['message_id']:
                         await pin.unpin()
                         break
             else:
-                await self.bot.pg_con.execute(
-                    "INSERT INTO webhook_pins_twi(message_id, webhook_id, posted_date) VALUES ($1,$2,$3)",
-                    message.id, message.webhook_id, message.created_at)
+                connection = await self.bot.pg_con.acquire()
+                async with connection.transaction():
+                    await self.bot.pg_con.execute(
+                        "INSERT INTO webhook_pins_twi(message_id, webhook_id, posted_date) VALUES ($1,$2,$3)",
+                        message.id, message.webhook_id, message.created_at)
+                await self.bot.pg_con.release(connection)
             await message.pin()
 
     @commands.command(
@@ -259,10 +278,13 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     )
     @commands.check(admin_or_me_check)
     async def update_password(self, ctx, password, link):
-        await self.bot.pg_con.execute(
-            "INSERT INTO password_link(password, link, user_id, date) VALUES ($1, $2, $3, $4)",
-            password, link, ctx.author.id, ctx.message.created_at
-        )
+        connection = await self.bot.pg_con.acquire()
+        async with connection.transaction():
+            await self.bot.pg_con.execute(
+                "INSERT INTO password_link(password, link, user_id, date) VALUES ($1, $2, $3, $4)",
+                password, link, ctx.author.id, ctx.message.created_at
+            )
+        await self.bot.pg_con.release(connection)
 
     @commands.command(name="reddit")
     async def reddit_verification(self, ctx, username):
@@ -279,17 +301,24 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             for subexception in exception.items:
                 logging.error(subexception)
         try:
-            await self.bot.pg_con.execute(
-                """INSERT INTO twi_reddit(
-                time_added, discord_username, discord_id, reddit_username, currant_patreon, subreddit
-                ) 
-                VALUES (NOW(), $1, $2, $3, True, 'TWI_patreon')""",
-                ctx.author.name, ctx.author.id, username
-            )
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                await self.bot.pg_con.execute(
+                    """INSERT INTO twi_reddit(
+                    time_added, discord_username, discord_id, reddit_username, currant_patreon, subreddit
+                    ) 
+                    VALUES (NOW(), $1, $2, $3, True, 'TWI_patreon')""",
+                    ctx.author.name, ctx.author.id, username
+                )
+            await self.bot.pg_con.release(connection)
         except asyncpg.UniqueViolationError as e:
             logging.exception(f'{e}')
-            dup_user = await self.bot.pg_con.fetchrow("SELECT reddit_username FROM twi_reddit WHERE discord_id = $1",
-                                                      ctx.author.id)
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                dup_user = await self.bot.pg_con.fetchrow(
+                    "SELECT reddit_username FROM twi_reddit WHERE discord_id = $1",
+                    ctx.author.id)
+            await self.bot.pg_con.release(connection)
             ctx.send(f"You are already in the list with username {dup_user['reddit_username']}")
 
 
