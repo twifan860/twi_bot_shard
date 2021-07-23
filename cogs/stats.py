@@ -856,7 +856,7 @@ class StatsCogs(commands.Cog, name="stats"):
                 "SELECT count(*) total FROM messages WHERE created_at > $1 and channel_id = $2",
                 d_time, channel.id)
         await self.bot.pg_con.release(connection)
-        await ctx.send(f"There is a total of {results} in channel {channel} during the last {d_time}")
+        await ctx.send(f"There is a total of {results['total']} in channel {channel} since {d_time} UTC")
         logging.info(f"total messages: {results['total']} in channel {channel.name}")
 
 
