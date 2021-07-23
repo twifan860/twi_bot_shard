@@ -491,9 +491,6 @@ class StatsCogs(commands.Cog, name="stats"):
                                               "users(user_id, created_at, bot, username) "
                                               "VALUES($1,$2,$3,$4) ON CONFLICT DO UPDATE SET username = $4",
                                               member.id, member.created_at, member.bot, member.name)
-            await self.bot.pg_con.release(connection)
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
                 await self.bot.pg_con.execute(
                     "INSERT INTO server_membership(user_id, server_id) VALUES ($1,$2)",
                     member.id, member.guild.id)
