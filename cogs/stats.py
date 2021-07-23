@@ -500,6 +500,9 @@ class StatsCogs(commands.Cog, name="stats"):
             await self.bot.pg_con.release(connection)
         except asyncpg.UniqueViolationError:
             logging.error("Failed to insert user into server_membership")
+        except Exception as e:
+            channel = self.bot.get_channel(297916314239107072)
+            await channel.send(f"{e}")
 
     @Cog.listener("on_member_remove")
     async def member_remove(self, member):
