@@ -49,30 +49,25 @@ async def save_reaction(self, reaction):
 
 
 async def save_message(self, message):
+    connection = await self.bot.pg_con.acquire()
     for mention in message.mentions:
-        connection = await self.bot.pg_con.acquire()
         async with connection.transaction():
             await self.bot.pg_con.execute("INSERT INTO mentions(message_id, user_mention) VALUES ($1,$2)",
                                           message.id, mention.id)
-        await self.bot.pg_con.release(connection)
 
     for role_mention in message.role_mentions:
-        connection = await self.bot.pg_con.acquire()
         async with connection.transaction():
             await self.bot.pg_con.execute("INSERT INTO mentions(message_id, role_mention) VALUES ($1,$2)",
                                           message.id, role_mention.id)
-        await self.bot.pg_con.release(connection)
 
     if message.attachments:
         for attachment in message.attachments:
-            connection = await self.bot.pg_con.acquire()
             async with connection.transaction():
                 await self.bot.pg_con.execute("INSERT INTO attachments "
                                               "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
                                               attachment.id, attachment.filename, attachment.url,
                                               attachment.size, attachment.height, attachment.width,
                                               attachment.is_spoiler(), message.id)
-            await self.bot.pg_con.release(connection)
 
     if message.reactions:
         for reaction in message.reactions:
@@ -89,7 +84,6 @@ async def save_message(self, message):
         reference = None
 
     try:
-        connection = await self.bot.pg_con.acquire()
         async with connection.transaction():
             await self.bot.pg_con.execute(
                 "INSERT INTO messages(message_id, created_at, content, user_name, server_name, server_id, channel_id, "
@@ -99,19 +93,15 @@ async def save_message(self, message):
                 message.guild.id, message.channel.id, message.channel.name,
                 message.author.id, nick,
                 message.jump_url, message.author.bot, False, reference)
-        await self.bot.pg_con.release(connection)
     except asyncpg.exceptions.UniqueViolationError:
-        logging.warning(f"{message.id} already in DB")
+        logging.error(f"{message.id} already in DB")
     except asyncpg.exceptions.ForeignKeyViolationError as e:
         logging.error(f"{e}")
-        connection = await self.bot.pg_con.acquire()
         async with connection.transaction():
             await self.bot.pg_con.execute(
                 "INSERT INTO users(user_id, created_at, bot, username) VALUES($1,$2,$3,$4)",
                 message.author.id, message.author.created_at, message.author.bot, message.author.name
             )
-        await self.bot.pg_con.release(connection)
-        connection = await self.bot.pg_con.acquire()
         async with connection.transaction():
             await self.bot.pg_con.execute(
                 "INSERT INTO messages(message_id, created_at, content, user_name, server_name, server_id, channel_id, "
@@ -121,7 +111,7 @@ async def save_message(self, message):
                 message.guild.id, message.channel.id, message.channel.name,
                 message.author.id, nick,
                 message.jump_url, message.author.bot, False, reference)
-        await self.bot.pg_con.release(connection)
+    await self.bot.pg_con.release(connection)
 
 
 class StatsCogs(commands.Cog, name="stats"):
@@ -162,30 +152,26 @@ class StatsCogs(commands.Cog, name="stats"):
                 logging.debug(f"{user_ids=}")
                 for member in members_list:
                     logging.debug(f"{member=}")
+                    connection = await self.bot.pg_con.acquire()
                     if member.id not in flat_user_ids:
-                        connection = await self.bot.pg_con.acquire()
                         async with connection.transaction():
                             await self.bot.pg_con.execute("INSERT INTO "
                                                           "users(user_id, created_at, bot, username) "
                                                           "VALUES($1,$2,$3,$4)",
                                                           member.id, member.created_at, member.bot, member.name)
-                        await self.bot.pg_con.release(connection)
-                        connection = await self.bot.pg_con.acquire()
+                            await self.bot.pg_con.execute(
+                                "INSERT INTO server_membership(user_id, server_id) VALUES ($1,$2)",
+                                member.id, member.guild.id)
+                        logging.info(f"Added {member.name} - {member.id}")
+                    else:
                         async with connection.transaction():
                             await self.bot.pg_con.execute(
                                 "INSERT INTO server_membership(user_id, server_id) VALUES ($1,$2)",
                                 member.id, member.guild.id)
-                        await self.bot.pg_con.release(connection)
-                    else:
-                        connection = await self.bot.pg_con.acquire()
-                        async with connection.transaction():
-                            await self.bot.pg_con.execute(
-                                "INSERT INTO server_membership(user_id, server_id) VALUES ($1,$2) "
-                                "ON CONFLICT DO NOTHING",
-                                member.id, member.guild.id)
-                        await self.bot.pg_con.release(connection)
+                    await self.bot.pg_con.release(connection)
         except Exception as e:
             logging.error(f'{type(e).__name__} - {e}')
+        await ctx.send("Done!")
 
     @commands.command(
         name="save_servers",
@@ -518,35 +504,30 @@ class StatsCogs(commands.Cog, name="stats"):
     @Cog.listener("on_member_update")
     async def member_roles_update(self, before, after):
         if before.roles != after.roles:
+            connection = await self.bot.pg_con.acquire()
             if len(before.roles) < len(after.roles):
                 gained = set(after.roles) - set(before.roles)
                 gained = gained.pop()
-                connection = await self.bot.pg_con.acquire()
                 async with connection.transaction():
                     await self.bot.pg_con.execute("INSERT INTO role_membership(user_id, role_id) VALUES($1,$2)",
                                                   after.id, gained.id)
-                await self.bot.pg_con.release(connection)
-                connection = await self.bot.pg_con.acquire()
-                async with connection.transaction():
                     await self.bot.pg_con.execute(
                         "INSERT INTO role_history(role_id, user_id, date) VALUES($1,$2,$3)",
                         gained.id, after.id, datetime.now())
-                await self.bot.pg_con.release(connection)
             else:
                 lost = set(before.roles) - set(after.roles)
                 lost = lost.pop()
-                connection = await self.bot.pg_con.acquire()
                 async with connection.transaction():
                     await self.bot.pg_con.execute(
                         "DELETE FROM role_membership WHERE user_id = $1 AND role_id = $2",
                         after.id, lost.id)
-                await self.bot.pg_con.release(connection)
-                connection = await self.bot.pg_con.acquire()
-                async with connection.transaction():
                     await self.bot.pg_con.execute(
                         "INSERT INTO role_history(role_id, user_id, date, gained) VALUES($1,$2,$3,FALSE)",
                         lost.id, after.id, datetime.now())
-                await self.bot.pg_con.release(connection)
+                if lost.id == 585789843368574997:
+                    pink_role = await after.guild.get_role(690373096099545168)
+                    after.remove_roles(pink_role)
+            await self.bot.pg_con.release(connection)
 
     @Cog.listener("on_user_update")
     async def user_update(self, before, after):
@@ -715,9 +696,6 @@ class StatsCogs(commands.Cog, name="stats"):
         async with connection.transaction():
             await self.bot.pg_con.execute("UPDATE roles set deleted = TRUE where id = $1",
                                           role.id)
-        await self.bot.pg_con.release(connection)
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
             await self.bot.pg_con.execute("DELETE FROM role_membership WHERE role_id = $1", role.id)
         await self.bot.pg_con.release(connection)
 
