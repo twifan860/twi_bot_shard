@@ -5,8 +5,11 @@ from discord.ext import commands
 
 
 async def add_to_gallery(self, ctx, msg_id, title, channel_name):
-    channel_id = await self.bot.pg_con.fetchrow(
-        "SELECT channel_id FROM gallery_mementos WHERE channel_name = $1", channel_name)
+    connection = await self.bot.pg_con.acquire()
+    async with connection.transaction():
+        channel_id = await self.bot.pg_con.fetchrow(
+            "SELECT channel_id FROM gallery_mementos WHERE channel_name = $1", channel_name)
+    await self.bot.pg_con.release(connection)
     try:
         channel = self.bot.get_channel(channel_id["channel_id"])
     except KeyError:
@@ -31,12 +34,15 @@ async def add_to_gallery(self, ctx, msg_id, title, channel_name):
 
 
 async def set_channel(self, ctx, channel_id: int, channel_name: str):
-    await self.bot.pg_con.execute("INSERT INTO gallery_mementos (channel_id, channel_name) "
-                                  "VALUES ($1, $2) "
-                                  "ON CONFLICT (channel_name) "
-                                  "DO UPDATE "
-                                  "SET channel_id = excluded.channel_id",
-                                  channel_id, channel_name)
+    connection = await self.bot.pg_con.acquire()
+    async with connection.transaction():
+        await self.bot.pg_con.execute("INSERT INTO gallery_mementos (channel_id, channel_name) "
+                                      "VALUES ($1, $2) "
+                                      "ON CONFLICT (channel_name) "
+                                      "DO UPDATE "
+                                      "SET channel_id = excluded.channel_id",
+                                      channel_id, channel_name)
+    await self.bot.pg_con.release(connection)
 
 
 def admin_or_me_check(ctx):
