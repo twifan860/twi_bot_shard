@@ -566,9 +566,9 @@ class StatsCogs(commands.Cog, name="stats"):
         async with connection.transaction():
             await self.bot.pg_con.execute("DELETE FROM server_membership WHERE user_id = $1 AND server_id = $2",
                                           member.id, member.guild.id)
-        await self.bot.pg_con.release(connection)
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
+            await self.bot.pg_con.execute(
+                "DELETE FROM role_membership WHERE role_id IN (SELECT id FROM roles WHERE guild_id = $2) AND user_id = $1",
+                member.id, member.guild.id)
             await self.bot.pg_con.execute("INSERT INTO join_leave VALUES($1,$2,$3,$4,$5,$6)",
                                           member.id, datetime.now(), "LEAVE",
                                           member.guild.name, member.guild.id, member.created_at.replace(tzinfo=None))
