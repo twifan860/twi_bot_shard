@@ -1,6 +1,7 @@
 import asyncio
-import discord
 import logging
+
+import discord
 from discord.ext import commands
 
 
@@ -42,7 +43,7 @@ class ModCogs(commands.Cog):
         embed.set_thumbnail(
             url="https://cdn.discordapp.com/attachments/359864559361851392/715698476813385788/Exclamation-Mark-Symbol-PNG.png")
         embed.add_field(name="\u200b", value=message, inline=False)
-        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar.url)
         await ctx.send(embed=embed)
 
     @commands.command(

@@ -1,10 +1,10 @@
 import json
 from datetime import datetime, timezone
+from operator import itemgetter
 
 import aiohttp
 import discord
 from discord.ext import commands
-from operator import itemgetter
 
 import secrets
 
@@ -156,7 +156,7 @@ class PollCog(commands.Cog, name="Poll"):
              "\nFind the poll id via !PollList or !FindPoll",
         hidden=False
     )
-    @commands.check(is_bot_channel)
+    # @commands.check(is_bot_channel)
     @commands.cooldown(1, 300, commands.BucketType.channel)
     async def poll(self, ctx, x=None):
         if is_bot_channel(ctx):
