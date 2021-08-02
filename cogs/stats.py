@@ -673,8 +673,6 @@ class StatsCogs(commands.Cog, name="stats"):
     @Cog.listener("on_thread_join")
     async def thread_created(self, thread):
         logging.info(f"A new thread has been created: {thread}")
-        channel = self.bot.get_channel(297916314239107072)
-        await channel.send(f"A new thread has been created: <#{thread.id}>")
         try:
             await self.bot.pg_con.execute("INSERT INTO "
                                           "threads(id, guild_id, parent_id, owner_id, slowmode_delay, archived, locked, archiver_id, auto_archive_duration, is_private, name, deleted) "
@@ -682,6 +680,8 @@ class StatsCogs(commands.Cog, name="stats"):
                                           thread.id, thread.guild.id, thread.parent_id, thread.owner_id,
                                           thread.slowmode_delay, thread.archived, thread.locked, thread.archiver_id,
                                           thread.auto_archive_duration, thread.is_private(), thread.name, False)
+            channel = self.bot.get_channel(871486325692432464)
+            await channel.send(f"A new thread has been created: <#{thread.id}>")
             me = await self.bot.fetch_user(268608466690506753)
             await thread.add_user(me)
         except asyncpg.UniqueViolationError:
