@@ -935,7 +935,7 @@ class StatsCogs(commands.Cog, name="stats"):
                    f"{user_join_leave_results['JOIN']:<{length}}:: Joined\n" \
                    f"{user_join_leave_results['LEAVE']:<{length}}:: Left"
         logging.debug(f"Built message {message}")
-        channel = self.bot.get_channel(297916314239107072)
+        channel = self.bot.get_channel(871486325692432464)
         logging.debug(f"Found channel {channel.name}")
         if len(message) > 1900:
             logging.debug("Message longer than 1900 characters")
