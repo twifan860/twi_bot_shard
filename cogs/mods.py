@@ -51,7 +51,7 @@ class ModCogs(commands.Cog):
         name="deletealluser",
         alias=['dau']
     )
-    @commands.check(admin_or_me_check)
+    @commands.is_owner()
     async def delete_all_user(self, ctx, user: discord.User):
         connection = await self.bot.pg_con.acquire()
         async with connection.transaction():
@@ -119,14 +119,13 @@ class ModCogs(commands.Cog):
             webhook = discord.SyncWebhook.from_url(
                 f"https://discord.com/api/webhooks/873152649288097842/au-z9gAY3syWWenvGzQULWjwiolwSf1Ey6EJMd-VRO1UVOJt0bhZiI3kJwjgiw6aPp9s"
             )
-            webhook.send("Hello from discord.py 2.0")
             for attachment in message.attachments:
                 file = await attachment.to_file(spoiler=attachment.is_spoiler())
                 await webhook.send(f"attachment: {attachment.filename}\n"
-                                   f"User: {message.author.mention}\n"
+                                   f"User: {message.author.name}\n"
                                    f"Content: {message.content}\n"
-                                   f"date: {message.created_at}"
-                                   f"Jump Url: {message.jump_url}", file=file, allowed_mentions=False)
+                                   f"date: {message.created_at}\n"
+                                   f"Jump Url: {message.jump_url}", file=file, allowed_mentions=discord.AllowedMentions(users=False))
 
 
 def setup(bot):
