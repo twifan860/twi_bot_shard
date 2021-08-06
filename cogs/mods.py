@@ -130,7 +130,7 @@ class ModCogs(commands.Cog):
 
     @Cog.listener("on_message")
     async def find_links(self, message):
-        if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content):
+        if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content) and message.author.bot is False:
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             await webhook.send(f"Link detected: {message.content}\n"
                                f"user: {message.author.name} {message.author.id}\n"
