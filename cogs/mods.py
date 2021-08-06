@@ -3,6 +3,10 @@ import logging
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import Cog
+from discord import Webhook, AsyncWebhookAdapter
+import aiohttp
+from main import home
 
 
 def admin_or_me_check(ctx):
@@ -104,6 +108,28 @@ class ModCogs(commands.Cog):
 
             if str(reaction.emoji) == '❌':
                 await ctx.send("Denied")
+
+    @Cog.listener("on_message")
+    async def mention_pirate(self, message):
+        for mention in message.mentions:
+            if mention.id == 230442779803648000:
+                notification_channel = await self.bot.fetch_channel(871486325692432464)
+                await notification_channel.send(f"User {message.author.name} @ Pirate at {message.jump_url}")
+
+    @Cog.listener("on_message")
+    async def log_attachment(self, message):
+        if message.attachments and message.author.bot is False:
+            async with aiohttp.ClientSession() as session:
+                webhook = Webhook.from_url(
+                    'https://discord.com/api/webhooks/873152649288097842/au-z9gAY3syWWenvGzQULWjwiolwSf1Ey6EJMd-VRO1UVOJt0bhZiI3kJwjgiw6aPp9s',
+                    adapter=AsyncWebhookAdapter(session))
+                for attachment in message.attachments:
+                    file = await attachment.to_file(spoiler=attachment.is_spoiler())
+                    await webhook.send(f"attachment: {attachment.filename}\n"
+                                       f"User: {message.author.mention}\n"
+                                       f"Content: {message.content}\n"
+                                       f"date: {message.created_at}"
+                                       f"Jump Url: {message.jump_url}", file=file, allowed_mentions=False)
 
 
 def setup(bot):
