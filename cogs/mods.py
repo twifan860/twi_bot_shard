@@ -4,9 +4,6 @@ import logging
 import discord
 from discord.ext import commands
 from discord.ext.commands import Cog
-from discord import Webhook, AsyncWebhookAdapter
-import aiohttp
-from main import home
 
 
 def admin_or_me_check(ctx):
