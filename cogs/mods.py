@@ -119,17 +119,17 @@ class ModCogs(commands.Cog):
     @Cog.listener("on_message")
     async def log_attachment(self, message):
         if message.attachments and message.author.bot is False:
-            async with aiohttp.ClientSession() as session:
-                webhook = Webhook.from_url(
-                    'https://discord.com/api/webhooks/873152649288097842/au-z9gAY3syWWenvGzQULWjwiolwSf1Ey6EJMd-VRO1UVOJt0bhZiI3kJwjgiw6aPp9s',
-                    adapter=AsyncWebhookAdapter(session))
-                for attachment in message.attachments:
-                    file = await attachment.to_file(spoiler=attachment.is_spoiler())
-                    await webhook.send(f"attachment: {attachment.filename}\n"
-                                       f"User: {message.author.mention}\n"
-                                       f"Content: {message.content}\n"
-                                       f"date: {message.created_at}"
-                                       f"Jump Url: {message.jump_url}", file=file, allowed_mentions=False)
+            webhook = discord.SyncWebhook.from_url(
+                f"https://discord.com/api/webhooks/873152649288097842/au-z9gAY3syWWenvGzQULWjwiolwSf1Ey6EJMd-VRO1UVOJt0bhZiI3kJwjgiw6aPp9s"
+            )
+            webhook.send("Hello from discord.py 2.0")
+            for attachment in message.attachments:
+                file = await attachment.to_file(spoiler=attachment.is_spoiler())
+                await webhook.send(f"attachment: {attachment.filename}\n"
+                                   f"User: {message.author.mention}\n"
+                                   f"Content: {message.content}\n"
+                                   f"date: {message.created_at}"
+                                   f"Jump Url: {message.jump_url}", file=file, allowed_mentions=False)
 
 
 def setup(bot):
