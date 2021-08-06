@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 
 import discord
 from discord.ext import commands
@@ -122,10 +123,21 @@ class ModCogs(commands.Cog):
             for attachment in message.attachments:
                 file = await attachment.to_file(spoiler=attachment.is_spoiler())
                 await webhook.send(f"attachment: {attachment.filename}\n"
-                                   f"User: {message.author.name}\n"
+                                   f"User: {message.author.name} {message.author.id}\n"
                                    f"Content: {message.content}\n"
                                    f"date: {message.created_at}\n"
                                    f"Jump Url: {message.jump_url}", file=file, allowed_mentions=discord.AllowedMentions(users=False))
+
+    @Cog.listener("on_message")
+    async def find_links(self, message):
+        if re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content):
+            webhook = discord.SyncWebhook.from_url(
+                f"https://discord.com/api/webhooks/873152649288097842/au-z9gAY3syWWenvGzQULWjwiolwSf1Ey6EJMd-VRO1UVOJt0bhZiI3kJwjgiw6aPp9s"
+            )
+            await webhook.send(f"Link detected: {message.content}\n"
+                               f"user: {message.author.name} {message.author.id}\n"
+                               f"Date: {message.created_at}\n"
+                               f"Jump Url: {message.jump_url}")
 
 
 def setup(bot):
