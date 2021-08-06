@@ -6,6 +6,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Cog
 
+import secrets
+
 
 def admin_or_me_check(ctx):
     role = discord.utils.get(ctx.guild.roles, id=346842813687922689)
@@ -117,9 +119,7 @@ class ModCogs(commands.Cog):
     @Cog.listener("on_message")
     async def log_attachment(self, message):
         if message.attachments and message.author.bot is False:
-            webhook = discord.SyncWebhook.from_url(
-                f"https://discord.com/api/webhooks/873152649288097842/au-z9gAY3syWWenvGzQULWjwiolwSf1Ey6EJMd-VRO1UVOJt0bhZiI3kJwjgiw6aPp9s"
-            )
+            webhook = discord.SyncWebhook.from_url(secrets.webhook)
             for attachment in message.attachments:
                 file = await attachment.to_file(spoiler=attachment.is_spoiler())
                 await webhook.send(f"attachment: {attachment.filename}\n"
@@ -130,10 +130,8 @@ class ModCogs(commands.Cog):
 
     @Cog.listener("on_message")
     async def find_links(self, message):
-        if re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content):
-            webhook = discord.SyncWebhook.from_url(
-                f"https://discord.com/api/webhooks/873152649288097842/au-z9gAY3syWWenvGzQULWjwiolwSf1Ey6EJMd-VRO1UVOJt0bhZiI3kJwjgiw6aPp9s"
-            )
+        if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content):
+            webhook = discord.SyncWebhook.from_url(secrets.webhook)
             await webhook.send(f"Link detected: {message.content}\n"
                                f"user: {message.author.name} {message.author.id}\n"
                                f"Date: {message.created_at}\n"
