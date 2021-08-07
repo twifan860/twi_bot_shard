@@ -121,21 +121,27 @@ class ModCogs(commands.Cog):
         if message.attachments and message.author.bot is False:
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             for attachment in message.attachments:
+                embed = discord.Embed(title="New attachment", url=message.jump_url)
                 file = await attachment.to_file(spoiler=attachment.is_spoiler())
-                await webhook.send(f"attachment: {attachment.filename}\n"
-                                   f"User: {message.author.name} {message.author.id}\n"
-                                   f"Content: {message.content}\n"
-                                   f"date: {message.created_at}\n"
-                                   f"Jump Url: {message.jump_url}", file=file, allowed_mentions=discord.AllowedMentions(users=False))
+                embed.set_image(url=f"attachment://{attachment.filename}")
+                embed.add_field(name="Attachment", value=attachment.filename, inline=True)
+                embed.add_field(name="User", value=f"{message.author.name} {message.author.id}", inline=True)
+                embed.add_field(name="Channel", value=message.channel.mention, inline=True)
+                embed.add_field(name="Content", value=message.content, inline=False)
+                embed.set_footer(text=message.created_at)
+                await webhook.send(file=file, embed=embed,
+                                   allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
 
     @Cog.listener("on_message")
     async def find_links(self, message):
-        if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content) and message.author.bot is False:
+        if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content) \
+                and message.author.bot is False:
+            embed = discord.Embed(title="Link detected", url=message.jump_url)
+            embed.add_field(name="User", value=f"{message.author.name} {message.author.id}", inline=True)
+            embed.add_field(name="Channel", value=message.channel.mention, inline=True)
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
-            await webhook.send(f"Link detected: {message.content}\n"
-                               f"user: {message.author.name} {message.author.id}\n"
-                               f"Date: {message.created_at}\n"
-                               f"Jump Url: {message.jump_url}")
+            await webhook.send(f"Link detected: {message.content}", embed=embed,
+                               allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
 
 
 def setup(bot):
