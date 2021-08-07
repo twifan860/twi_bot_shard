@@ -136,11 +136,12 @@ class ModCogs(commands.Cog):
     async def find_links(self, message):
         if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content) \
                 and message.author.bot is False:
-            embed = discord.Embed(title="Link detected", url=message.jump_url)
-            embed.add_field(name="User", value=f"{message.author.name} {message.author.id}", inline=True)
-            embed.add_field(name="Channel", value=message.channel.mention, inline=True)
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
-            await webhook.send(f"Link detected: {message.content}", embed=embed,
+            await webhook.send(f"Link detected: {message.content}\n"
+                               f"user: {message.author.name} {message.author.id}\n"
+                               f"Channel: {message.channel.mention}"
+                               f"Date: {message.created_at}\n"
+                               f"Jump Url: {message.jump_url}",
                                allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
 
 
