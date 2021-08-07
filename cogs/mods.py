@@ -122,14 +122,13 @@ class ModCogs(commands.Cog):
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             for attachment in message.attachments:
                 try:
-                    embed = discord.Embed(title="New attachment", url=message.jump_url)
+                    embed = discord.Embed(title="New attachment", url=message.jump_url, description=message.content)
                     file = await attachment.to_file(spoiler=attachment.is_spoiler())
                     embed.set_image(url=f"attachment://{attachment.filename}")
                     embed.add_field(name="Attachment", value=attachment.filename, inline=True)
                     embed.add_field(name="User", value=f"{message.author.name} {message.author.id}", inline=True)
                     embed.add_field(name="Channel", value=message.channel.mention, inline=True)
-                    embed.add_field(name="Content", value=message.content, inline=False)
-                    embed.set_footer(text=message.created_at)
+                    embed.set_author(name=message.author.mention, icon_url=message.author.avatar.url)
                     await webhook.send(file=file, embed=embed,
                                        allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
                 except Exception as e:
