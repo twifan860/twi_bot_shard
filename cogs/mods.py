@@ -139,7 +139,7 @@ class ModCogs(commands.Cog):
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             await webhook.send(f"Link detected: {message.content}\n"
                                f"user: {message.author.name} {message.author.id}\n"
-                               f"Channel: {message.channel.mention}"
+                               f"Channel: {message.channel.mention}\n"
                                f"Date: {message.created_at}\n"
                                f"Jump Url: {message.jump_url}",
                                allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
