@@ -119,7 +119,7 @@ class ModCogs(commands.Cog):
     @Cog.listener("on_message")
     async def log_attachment(self, message):
         if message.attachments and message.author.bot is False:
-            logging.info(message.attachments)
+            logging.debug(message.attachments)
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             for attachment in message.attachments:
                 try:
@@ -132,7 +132,7 @@ class ModCogs(commands.Cog):
                     await webhook.send(file=file, embed=embed,
                                        allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
                 except Exception as e:
-                    logging.error(f'{type(e).__name__} - {e}')
+                    logging.exception('Log_attachments')
 
     @Cog.listener("on_message")
     async def find_links(self, message):
