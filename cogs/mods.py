@@ -129,7 +129,7 @@ class ModCogs(commands.Cog):
                     embed.add_field(name="User", value=message.author.mention, inline=True)
                     embed.add_field(name="Channel", value=message.channel.mention, inline=True)
                     embed.set_thumbnail(url=message.author.avatar.url)
-                    await webhook.send(file=file, embed=embed,
+                    webhook.send(file=file, embed=embed,
                                        allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
                 except Exception as e:
                     logging.exception('Log_attachments')
@@ -139,7 +139,7 @@ class ModCogs(commands.Cog):
         if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content) \
                 and message.author.bot is False:
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
-            await webhook.send(f"Link detected: {message.content}\n"
+            webhook.send(f"Link detected: {message.content}\n"
                                f"User: {message.author.name} {message.author.id}\n"
                                f"Channel: {message.channel.mention}\n"
                                f"Date: {message.created_at}\n"
