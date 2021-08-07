@@ -125,15 +125,17 @@ class StatsCogs(commands.Cog, name="stats"):
 
     # @Cog.listener("on_message")
     # async def on_message_mass_ping(self, message):
-    #     if len(message.mentions) >= 2:
+    #     if len(message.mentions) >= 20 or message.mention_everyone:
     #         mute_role = message.guild.get_role(712405244054863932)
     #         try:
     #             await message.author.add_roles(mute_role)
     #         except discord.Forbidden:
-    #             await message.channel.send(f"I don't have the required permissions to mute {message.author.mention}")
+    #             logging.warning(f"I don't have the required permissions to mute {message.author.mention}")
     #         else:
     #             await message.channel.send(
-    #                 f"{message.author.mention} has been muted for pinging more than 20 people in one message")
+    #                 f"{message.author.mention} has been muted for pinging more than 20 people in one message or mentioning everyone"
+    #                 f"please contact a mod if this was an error")
+
 
     @commands.command(
         name="save_users",
@@ -255,12 +257,17 @@ class StatsCogs(commands.Cog, name="stats"):
     async def save_threads(self, ctx):
         for guild in self.bot.guilds:
             for thread in guild.threads:
-                await self.bot.pg_con.execute("INSERT INTO "
-                                              "threads(id, guild_id, parent_id, owner_id, slowmode_delay, archived, locked, archiver_id, auto_archive_duration, is_private, name, deleted) "
-                                              "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
-                                              thread.id, thread.guild.id, thread.parent_id, thread.owner_id,
-                                              thread.slowmode_delay, thread.archived, thread.locked, thread.archiver_id,
-                                              thread.auto_archive_duration, thread.is_private(), thread.name, False)
+                try:
+                    await self.bot.pg_con.execute("INSERT INTO "
+                                                  "threads(id, guild_id, parent_id, owner_id, slowmode_delay, archived, locked, archiver_id, auto_archive_duration, is_private, name, deleted) "
+                                                  "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
+                                                  thread.id, thread.guild.id, thread.parent_id, thread.owner_id,
+                                                  thread.slowmode_delay, thread.archived, thread.locked, thread.archiver_id,
+                                                  thread.auto_archive_duration, thread.is_private(), thread.name, False)
+                except asyncpg.UniqueViolationError:
+                    pass
+                except Exception:
+                    logging.exception("Save_threads")
         await ctx.send("Done")
 
     @commands.command(
@@ -435,16 +442,20 @@ class StatsCogs(commands.Cog, name="stats"):
     @Cog.listener("on_raw_message_edit")
     async def message_edited(self, message):
         try:
+            logging.info(f"message edited {message}")
             old_content = await self.bot.pg_con.fetchrow("SELECT content FROM messages where message_id = $1",
                                                          int(message.data['id']))
+            logging.info(old_content)
             await self.bot.pg_con.execute(
                 "INSERT INTO message_edit(id, old_content, new_content, edit_timestamp) VALUES ($1,$2,$3,$4)",
                 int(message.data['id']), old_content['content'], message.data['content'],
                 datetime.fromisoformat(message.data['edited_timestamp']).replace(tzinfo=None))
+            logging.info("post insert")
             await self.bot.pg_con.execute("UPDATE messages set content = $1 WHERE message_id = $2",
                                           message.data['content'], int(message.data['id']))
+            logging.info("post update")
         except Exception as e:
-            logging.debug(f"{e} {message.data} {message}")
+            logging.exception("message_edited")
 
     @Cog.listener("on_raw_message_delete")
     async def message_deleted(self, message):
