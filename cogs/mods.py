@@ -119,6 +119,7 @@ class ModCogs(commands.Cog):
     @Cog.listener("on_message")
     async def log_attachment(self, message):
         if message.attachments and message.author.bot is False:
+            logging.info(message.attachments)
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             for attachment in message.attachments:
                 try:
