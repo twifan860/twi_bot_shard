@@ -121,16 +121,19 @@ class ModCogs(commands.Cog):
         if message.attachments and message.author.bot is False:
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             for attachment in message.attachments:
-                embed = discord.Embed(title="New attachment", url=message.jump_url)
-                file = await attachment.to_file(spoiler=attachment.is_spoiler())
-                embed.set_image(url=f"attachment://{attachment.filename}")
-                embed.add_field(name="Attachment", value=attachment.filename, inline=True)
-                embed.add_field(name="User", value=f"{message.author.name} {message.author.id}", inline=True)
-                embed.add_field(name="Channel", value=message.channel.mention, inline=True)
-                embed.add_field(name="Content", value=message.content, inline=False)
-                embed.set_footer(text=message.created_at)
-                await webhook.send(file=file, embed=embed,
-                                   allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
+                try:
+                    embed = discord.Embed(title="New attachment", url=message.jump_url)
+                    file = await attachment.to_file(spoiler=attachment.is_spoiler())
+                    embed.set_image(url=f"attachment://{attachment.filename}")
+                    embed.add_field(name="Attachment", value=attachment.filename, inline=True)
+                    embed.add_field(name="User", value=f"{message.author.name} {message.author.id}", inline=True)
+                    embed.add_field(name="Channel", value=message.channel.mention, inline=True)
+                    embed.add_field(name="Content", value=message.content, inline=False)
+                    embed.set_footer(text=message.created_at)
+                    await webhook.send(file=file, embed=embed,
+                                       allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
+                except Exception as e:
+                    logging.error(e)
 
     @Cog.listener("on_message")
     async def find_links(self, message):
@@ -138,7 +141,7 @@ class ModCogs(commands.Cog):
                 and message.author.bot is False:
             webhook = discord.SyncWebhook.from_url(secrets.webhook)
             await webhook.send(f"Link detected: {message.content}\n"
-                               f"user: {message.author.name} {message.author.id}\n"
+                               f"User: {message.author.name} {message.author.id}\n"
                                f"Channel: {message.channel.mention}\n"
                                f"Date: {message.created_at}\n"
                                f"Jump Url: {message.jump_url}",
