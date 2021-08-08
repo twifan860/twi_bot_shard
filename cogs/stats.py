@@ -430,6 +430,8 @@ class StatsCogs(commands.Cog, name="stats"):
             self.bot.add_listener(self.save_listener, name='on_message')
         if self.message_deleted not in self.bot.extra_events['on_raw_message_delete']:
             self.bot.add_listener(self.message_deleted, name='on_raw_message_delete')
+        if self.message_edited not in self.bot.extra_events['on_raw_message_edit']:
+            self.bot.add_listener(self.message_edited, name='on_raw_message_edit')
         if self.reaction_add not in self.bot.extra_events['on_raw_reaction_add']:
             self.bot.add_listener(self.reaction_add, name='on_raw_reaction_add')
         if self.reaction_remove not in self.bot.extra_events['on_raw_reaction_remove']:
