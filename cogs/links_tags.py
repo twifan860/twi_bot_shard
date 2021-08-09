@@ -1,3 +1,5 @@
+import logging
+
 import asyncpg
 from discord.ext import commands
 
@@ -14,15 +16,18 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def link(self, ctx, user_input):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            query_r = await self.bot.pg_con.fetchrow("SELECT content, title FROM links WHERE lower(title) = lower($1)",
-                                                     user_input)
-        await self.bot.pg_con.release(connection)
-        if query_r:
-            await ctx.send(f"{query_r['title']}: {query_r['content']}")
-        else:
-            await ctx.send(f"I could not find a link with the title **{user_input}**")
+        try:
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                query_r = await self.bot.pg_con.fetchrow("SELECT content, title FROM links WHERE lower(title) = lower($1)",
+                                                         user_input)
+            await self.bot.pg_con.release(connection)
+            if query_r:
+                await ctx.send(f"{query_r['title']}: {query_r['content']}")
+            else:
+                await ctx.send(f"I could not find a link with the title **{user_input}**")
+        except:
+            logging.exception("Link")
 
     @commands.command(
         name="Links",
