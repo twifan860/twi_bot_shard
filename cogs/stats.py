@@ -143,7 +143,7 @@ class StatsCogs(commands.Cog, name="stats"):
         name="save_users",
         hidden=True
     )
-    @commands.check(admin_or_me_check)
+    @commands.is_owner()
     async def save_users(self, ctx):
         await ctx.message.delete()
         try:
@@ -256,6 +256,7 @@ class StatsCogs(commands.Cog, name="stats"):
         hidden=False,
         usage="",
     )
+    @commands.is_owner()
     async def save_threads(self, ctx):
         for guild in self.bot.guilds:
             for thread in guild.threads:
@@ -363,7 +364,7 @@ class StatsCogs(commands.Cog, name="stats"):
         name="save",
         hidden=True
     )
-    @commands.check(admin_or_me_check)
+    @commands.is_owner()
     async def save(self, ctx):
         try:
             await ctx.message.delete()
