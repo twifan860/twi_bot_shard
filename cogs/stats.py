@@ -456,7 +456,9 @@ class StatsCogs(commands.Cog, name="stats"):
 
 
             logging.debug("post update")
-        except Exception as e:
+        except TypeError:
+            pass
+        except:
             logging.exception("message_edited")
 
     @Cog.listener("on_raw_message_delete")
