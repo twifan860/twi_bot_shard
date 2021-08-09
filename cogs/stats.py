@@ -10,6 +10,8 @@ from discord.ext import commands
 from discord.ext import tasks
 from discord.ext.commands import Cog
 
+import secrets
+
 
 def admin_or_me_check(ctx):
     role = discord.utils.get(ctx.guild.roles, id=346842813687922689)
@@ -246,7 +248,7 @@ class StatsCogs(commands.Cog, name="stats"):
 
     @commands.command(
         name="save_threads",
-        aliases=[''],
+        aliases=['st'],
         brief="",
         description="",
         enable=True,
@@ -455,6 +457,9 @@ class StatsCogs(commands.Cog, name="stats"):
             logging.debug("post insert")
             await self.bot.pg_con.execute("UPDATE messages set content = $1 WHERE message_id = $2",
                                           message.data['content'], int(message.data['id']))
+            webhook = discord.SyncWebhook.from_url(secrets.webhook)
+
+
             logging.debug("post update")
         except Exception as e:
             logging.exception("message_edited")
