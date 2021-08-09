@@ -248,13 +248,7 @@ class StatsCogs(commands.Cog, name="stats"):
 
     @commands.command(
         name="save_threads",
-        aliases=['st'],
-        brief="",
-        description="",
-        enable=True,
-        help="",
-        hidden=False,
-        usage="",
+        hidden=True
     )
     @commands.is_owner()
     async def save_threads(self, ctx):
@@ -743,7 +737,7 @@ class StatsCogs(commands.Cog, name="stats"):
                                       threadmember.id, threadmember.thread_id)
 
     @Cog.listener("on_thread_member_remove")
-    async def thread_member_join(self, threadmember):
+    async def thread_member_leave(self, threadmember):
         await self.bot.pg_con.execute("DELETE FROM thread_membership WHERE user_id = $1 and thread_id = $2",
                                       threadmember.id, threadmember.thread_id)
 
