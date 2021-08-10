@@ -36,14 +36,17 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def links(self, ctx):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            query_r = await self.bot.pg_con.fetch("SELECT title FROM links ORDER BY title")
-        await self.bot.pg_con.release(connection)
-        message = ""
-        for tags in query_r:
-            message = f"{message} `{tags['title']}`"
-        await ctx.send(f"Links: {message}")
+        try:
+            connection = await self.bot.pg_con.acquire()
+            async with connection.transaction():
+                query_r = await self.bot.pg_con.fetch("SELECT title FROM links ORDER BY title")
+            await self.bot.pg_con.release(connection)
+            message = ""
+            for tags in query_r:
+                message = f"{message} `{tags['title']}`"
+            await ctx.send(f"Links: {message}")
+        except:
+            logging.exception("Link")
 
     @commands.command(
         name="AddLink",
