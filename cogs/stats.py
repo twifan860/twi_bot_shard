@@ -441,25 +441,22 @@ class StatsCogs(commands.Cog, name="stats"):
     @Cog.listener("on_raw_message_edit")
     async def message_edited(self, message):
         try:
-            logging.debug(f"message edited {message}")
-            old_content = await self.bot.pg_con.fetchrow("SELECT content FROM messages where message_id = $1",
-                                                         int(message.data['id']))
-            logging.debug(old_content)
-            await self.bot.pg_con.execute(
-                "INSERT INTO message_edit(id, old_content, new_content, edit_timestamp) VALUES ($1,$2,$3,$4)",
-                int(message.data['id']), old_content['content'], message.data['content'],
-                datetime.fromisoformat(message.data['edited_timestamp']).replace(tzinfo=None))
-            logging.debug("post insert")
-            await self.bot.pg_con.execute("UPDATE messages set content = $1 WHERE message_id = $2",
-                                          message.data['content'], int(message.data['id']))
-            webhook = discord.SyncWebhook.from_url(secrets.webhook)
-
-
-            logging.debug("post update")
-        except TypeError:
-            pass
+            if 'content' in message.data:
+                logging.debug(f"message edited {message}")
+                old_content = await self.bot.pg_con.fetchrow("SELECT content FROM messages where message_id = $1",
+                                                             int(message.data['id']))
+                logging.debug(old_content)
+                await self.bot.pg_con.execute(
+                    "INSERT INTO message_edit(id, old_content, new_content, edit_timestamp) VALUES ($1,$2,$3,$4)",
+                    int(message.data['id']), old_content['content'], message.data['content'],
+                    datetime.fromisoformat(message.data['edited_timestamp']).replace(tzinfo=None))
+                logging.debug("post insert")
+                await self.bot.pg_con.execute("UPDATE messages set content = $1 WHERE message_id = $2",
+                                              message.data['content'], int(message.data['id']))
+                webhook = discord.SyncWebhook.from_url(secrets.webhook)
+                logging.debug("post update")
         except:
-            logging.exception("message_edited")
+            logging.exception(f"message_edited - {message.data}")
 
     @Cog.listener("on_raw_message_delete")
     async def message_deleted(self, message):
