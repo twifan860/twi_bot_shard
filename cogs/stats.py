@@ -429,10 +429,10 @@ class StatsCogs(commands.Cog, name="stats"):
             self.bot.add_listener(self.message_deleted, name='on_raw_message_delete')
         if self.message_edited not in self.bot.extra_events['on_raw_message_edit']:
             self.bot.add_listener(self.message_edited, name='on_raw_message_edit')
-        if self.reaction_add not in self.bot.extra_events['on_raw_reaction_add']:
-            self.bot.add_listener(self.reaction_add, name='on_raw_reaction_add')
-        if self.reaction_remove not in self.bot.extra_events['on_raw_reaction_remove']:
-            self.bot.add_listener(self.reaction_remove, name='on_raw_reaction_remove')
+        # if self.reaction_add not in self.bot.extra_events['on_raw_reaction_add']:
+        #     self.bot.add_listener(self.reaction_add, name='on_raw_reaction_add')
+        # if self.reaction_remove not in self.bot.extra_events['on_raw_reaction_remove']:
+        #     self.bot.add_listener(self.reaction_remove, name='on_raw_reaction_remove')
 
     @Cog.listener("on_message")
     async def save_listener(self, message):
@@ -441,7 +441,8 @@ class StatsCogs(commands.Cog, name="stats"):
     @Cog.listener("on_raw_message_edit")
     async def message_edited(self, message):
         try:
-            if 'content' in message.data:
+            if 'content' in message.data and 'edited_timestamp' in message.data and message.data[
+                'edited_timestamp'] is not None:
                 logging.debug(f"message edited {message}")
                 old_content = await self.bot.pg_con.fetchrow("SELECT content FROM messages where message_id = $1",
                                                              int(message.data['id']))
@@ -466,85 +467,78 @@ class StatsCogs(commands.Cog, name="stats"):
                                           message.message_id)
         await self.bot.pg_con.release(connection)
 
-    @Cog.listener("on_raw_reaction_add")
-    async def reaction_add(self, reaction):
-        if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(
-                reaction.emoji) == discord.emoji.Emoji:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                old_react = await self.bot.pg_con.fetchrow("SELECT * "
-                                                           "FROM reactions "
-                                                           "WHERE (message_id = $1 AND user_id = $2 AND emoji_id = $3)",
-                                                           reaction.message_id, reaction.user_id, reaction.emoji.id)
-            await self.bot.pg_con.release(connection)
-        else:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                old_react = await self.bot.pg_con.fetchrow("SELECT * "
-                                                           "FROM reactions "
-                                                           "WHERE (message_id = $1 AND user_id = $2 AND unicode_emoji = $3)",
-                                                           reaction.message_id, reaction.user_id, reaction.emoji)
-            await self.bot.pg_con.release(connection)
-        if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(
-                reaction.emoji) == discord.emoji.Emoji:
-            if old_react is not None:
-                connection = await self.bot.pg_con.acquire()
-                async with connection.transaction():
-                    await self.bot.pg_con.execute("UPDATE reactions "
-                                                  "SET removed = FALSE "
-                                                  "WHERE message_id = $1 AND user_id = $2 AND emoji_id = $3",
-                                                  reaction.message_id, reaction.user_id, reaction.emoji.id)
-                await self.bot.pg_con.release(connection)
-                return
-        else:
-            if old_react is not None:
-                connection = await self.bot.pg_con.acquire()
-                async with connection.transaction():
-                    await self.bot.pg_con.execute("UPDATE reactions "
-                                                  "SET removed = FALSE "
-                                                  "WHERE message_id = $1 AND user_id = $2 AND unicode_emoji = $3",
-                                                  reaction.message_id, reaction.user_id, reaction.emoji)
-                await self.bot.pg_con.release(connection)
-                return
-        if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(reaction.emoji) == discord.emoji.Emoji:
-            emoji = None
-            name = reaction.emoji.name
-            animated = reaction.emoji.animated
-            emoji_id = reaction.emoji.id
-        else:
-            emoji = reaction.emoji
-            name = None
-            animated = False
-            emoji_id = None
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            await self.bot.pg_con.execute("INSERT INTO reactions "
-                                          "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
-                                          emoji, reaction.message_id, reaction.user_id,
-                                          name, animated, emoji_id,
-                                          f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}",
-                                          datetime.now())
-        await self.bot.pg_con.release(connection)
-
-    @Cog.listener("on_raw_reaction_remove")
-    async def reaction_remove(self, reaction):
-        if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(
-                reaction.emoji) == discord.emoji.Emoji:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                await self.bot.pg_con.execute("UPDATE reactions "
-                                              "SET removed = TRUE "
-                                              "WHERE message_id = $1 AND user_id = $2 AND emoji_id = $3",
-                                              reaction.message_id, reaction.user_id, reaction.emoji.id)
-            await self.bot.pg_con.release(connection)
-        else:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                await self.bot.pg_con.execute("UPDATE reactions "
-                                              "SET removed = TRUE "
-                                              "WHERE message_id = $1 AND user_id = $2 AND unicode_emoji = $3",
-                                              reaction.message_id, reaction.user_id, reaction.emoji)
-            await self.bot.pg_con.release(connection)
+    # @Cog.listener("on_raw_reaction_add")
+    # async def reaction_add(self, reaction):
+    #     connection = await self.bot.pg_con.acquire()
+    #     if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(reaction.emoji) == discord.emoji.Emoji:
+    #         async with connection.transaction():
+    #             old_react = await self.bot.pg_con.fetchrow("SELECT * "
+    #                                                        "FROM reactions "
+    #                                                        "WHERE (message_id = $1 AND user_id = $2 AND emoji_id = $3)",
+    #                                                        reaction.message_id, reaction.user_id, reaction.emoji.id)
+    #     else:
+    #         async with connection.transaction():
+    #             old_react = await self.bot.pg_con.fetchrow("SELECT * "
+    #                                                        "FROM reactions "
+    #                                                        "WHERE (message_id = $1 AND user_id = $2 AND unicode_emoji = $3)",
+    #                                                        reaction.message_id, reaction.user_id, reaction.emoji)
+    #     if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(reaction.emoji) == discord.emoji.Emoji:
+    #         if old_react is not None:
+    #             async with connection.transaction():
+    #                 await self.bot.pg_con.execute("UPDATE reactions "
+    #                                               "SET removed = FALSE "
+    #                                               "WHERE message_id = $1 AND user_id = $2 AND emoji_id = $3",
+    #                                               reaction.message_id, reaction.user_id, reaction.emoji.id)
+    #             await self.bot.pg_con.release(connection)
+    #             return
+    #     else:
+    #         if old_react is not None:
+    #             async with connection.transaction():
+    #                 await self.bot.pg_con.execute("UPDATE reactions "
+    #                                               "SET removed = FALSE "
+    #                                               "WHERE message_id = $1 AND user_id = $2 AND unicode_emoji = $3",
+    #                                               reaction.message_id, reaction.user_id, reaction.emoji)
+    #             return
+    #     if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(reaction.emoji) == discord.emoji.Emoji:
+    #         emoji = None
+    #         name = reaction.emoji.name
+    #         animated = reaction.emoji.animated
+    #         emoji_id = reaction.emoji.id
+    #     else:
+    #         emoji = reaction.emoji
+    #         name = None
+    #         animated = False
+    #         emoji_id = None
+    #     async with connection.transaction():
+    #         await self.bot.pg_con.execute("INSERT INTO reactions "
+    #                                       "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+    #                                       emoji, reaction.message_id, reaction.user_id,
+    #                                       name, animated, emoji_id,
+    #                                       f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}",
+    #                                       datetime.now())
+    #     await self.bot.pg_con.release(connection)
+    #
+    #     @Cog.listener("on_raw_reaction_add")
+    #     async def reaction_add(self, reaction):
+    #         connection = await self.bot.pg_con.acquire()
+    #
+    # @Cog.listener("on_raw_reaction_remove")
+    # async def reaction_remove(self, reaction):
+    #     connection = await self.bot.pg_con.acquire()
+    #     if type(reaction.emoji) == discord.partial_emoji.PartialEmoji or type(
+    #             reaction.emoji) == discord.emoji.Emoji:
+    #         async with connection.transaction():
+    #             await self.bot.pg_con.execute("UPDATE reactions "
+    #                                           "SET removed = TRUE "
+    #                                           "WHERE message_id = $1 AND user_id = $2 AND emoji_id = $3",
+    #                                           reaction.message_id, reaction.user_id, reaction.emoji.id)
+    #     else:
+    #         async with connection.transaction():
+    #             await self.bot.pg_con.execute("UPDATE reactions "
+    #                                           "SET removed = TRUE "
+    #                                           "WHERE message_id = $1 AND user_id = $2 AND unicode_emoji = $3",
+    #                                           reaction.message_id, reaction.user_id, reaction.emoji)
+    #     await self.bot.pg_con.release(connection)
 
     @Cog.listener("on_member_join")
     async def member_join(self, member):
