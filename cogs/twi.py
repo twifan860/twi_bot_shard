@@ -238,23 +238,17 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
             old_pin = await self.bot.pg_con.fetchrow("SELECT * FROM webhook_pins_twi WHERE webhook_id = $1",
                                                      message.webhook_id)
             if old_pin:
-                connection = await self.bot.pg_con.acquire()
-                async with connection.transaction():
-                    await self.bot.pg_con.execute(
-                        "UPDATE webhook_pins_twi set message_id = $1, posted_date = $2 WHERE webhook_id = $3",
-                        message.id, message.created_at.replace(tzinfo=None), message.webhook_id)
-                await self.bot.pg_con.release(connection)
+                await self.bot.pg_con.execute(
+                    "UPDATE webhook_pins_twi set message_id = $1, posted_date = $2 WHERE webhook_id = $3",
+                    message.id, message.created_at.replace(tzinfo=None), message.webhook_id)
                 for pin in await message.channel.pins():
                     if pin.id == old_pin['message_id']:
                         await pin.unpin()
                         break
             else:
-                connection = await self.bot.pg_con.acquire()
-                async with connection.transaction():
-                    await self.bot.pg_con.execute(
-                        "INSERT INTO webhook_pins_twi(message_id, webhook_id, posted_date) VALUES ($1,$2,$3)",
-                        message.id, message.webhook_id, message.created_at.replace(tzinfo=None))
-                await self.bot.pg_con.release(connection)
+                await self.bot.pg_con.execute(
+                    "INSERT INTO webhook_pins_twi(message_id, webhook_id, posted_date) VALUES ($1,$2,$3)",
+                    message.id, message.webhook_id, message.created_at.replace(tzinfo=None))
             await message.pin()
 
     @commands.command(
@@ -266,13 +260,10 @@ class TwiCog(commands.Cog, name="The Wandering Inn"):
     )
     @commands.check(admin_or_me_check)
     async def update_password(self, ctx, password, link):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            await self.bot.pg_con.execute(
-                "INSERT INTO password_link(password, link, user_id, date) VALUES ($1, $2, $3, $4)",
-                password, link, ctx.author.id, ctx.message.created_at.replace(tzinfo=None)
-            )
-        await self.bot.pg_con.release(connection)
+        await self.bot.pg_con.execute(
+            "INSERT INTO password_link(password, link, user_id, date) VALUES ($1, $2, $3, $4)",
+            password, link, ctx.author.id, ctx.message.created_at.replace(tzinfo=None)
+        )
 
     @commands.command(name="reddit")
     async def reddit_verification(self, ctx, username):

@@ -17,11 +17,8 @@ class LinkTags(commands.Cog, name="Links"):
     )
     async def link(self, ctx, user_input):
         try:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                query_r = await self.bot.pg_con.fetchrow("SELECT content, title FROM links WHERE lower(title) = lower($1)",
-                                                         user_input)
-            await self.bot.pg_con.release(connection)
+            query_r = await self.bot.pg_con.fetchrow("SELECT content, title FROM links WHERE lower(title) = lower($1)",
+                                                     user_input)
             if query_r:
                 await ctx.send(f"{query_r['title']}: {query_r['content']}")
             else:
@@ -37,10 +34,7 @@ class LinkTags(commands.Cog, name="Links"):
     )
     async def links(self, ctx):
         try:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                query_r = await self.bot.pg_con.fetch("SELECT title FROM links ORDER BY title")
-            await self.bot.pg_con.release(connection)
+            query_r = await self.bot.pg_con.fetch("SELECT title FROM links ORDER BY title")
             message = ""
             for tags in query_r:
                 message = f"{message} `{tags['title']}`"
@@ -56,13 +50,10 @@ class LinkTags(commands.Cog, name="Links"):
     )
     async def add_link(self, ctx, content, title, tag=None):
         try:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                await self.bot.pg_con.execute(
-                    "INSERT INTO links(content, tag, user_who_added, id_user_who_added, time_added, title) "
-                    "VALUES ($1,$2,$3,$4,now(),$5)",
-                    content, tag, ctx.author.display_name, ctx.author.id, title)
-            await self.bot.pg_con.release(connection)
+            await self.bot.pg_con.execute(
+                "INSERT INTO links(content, tag, user_who_added, id_user_who_added, time_added, title) "
+                "VALUES ($1,$2,$3,$4,now(),$5)",
+                content, tag, ctx.author.display_name, ctx.author.id, title)
             await ctx.send(f"Added Link: {title}\nLink: <{content}>\nTag: {tag}")
         except asyncpg.exceptions.UniqueViolationError:
             await ctx.send("That name is already in the list.")
@@ -75,10 +66,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def delete_link(self, ctx, title):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            result = await self.bot.pg_con.execute("DELETE FROM links WHERE lower(title) = lower($1)", title)
-        await self.bot.pg_con.release(connection)
+        result = await self.bot.pg_con.execute("DELETE FROM links WHERE lower(title) = lower($1)", title)
         if result == "DELETE 1":
             await ctx.send(f"Deleted link: **{title}**")
         else:
@@ -91,10 +79,7 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def tags(self, ctx):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            query_r = await self.bot.pg_con.fetch("SELECT DISTINCT tag FROM links ORDER BY tag")
-        await self.bot.pg_con.release(connection)
+        query_r = await self.bot.pg_con.fetch("SELECT DISTINCT tag FROM links ORDER BY tag")
         message = ""
         for tags in query_r:
             message = f"{message} `{tags['tag']}`"
@@ -108,11 +93,8 @@ class LinkTags(commands.Cog, name="Links"):
         hidden=False,
     )
     async def tag(self, ctx, user_input):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            query_r = await self.bot.pg_con.fetch("SELECT title FROM links WHERE lower(tag) = lower($1) ORDER BY title",
-                                                  user_input)
-        await self.bot.pg_con.release(connection)
+        query_r = await self.bot.pg_con.fetch("SELECT title FROM links WHERE lower(tag) = lower($1) ORDER BY title",
+                                              user_input)
         if query_r:
             message = ""
             for tags in query_r:

@@ -56,12 +56,9 @@ class ModCogs(commands.Cog):
     )
     @commands.is_owner()
     async def delete_all_user(self, ctx, user: discord.User):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            result = await self.bot.pg_con.fetchrow(
-                "SELECT COUNT(*) message_count FROM messages WHERE user_id = $1 AND deleted = False AND server_id = $2",
-                user.id, ctx.guild.id)
-        await self.bot.pg_con.release(connection)
+        result = await self.bot.pg_con.fetchrow(
+            "SELECT COUNT(*) message_count FROM messages WHERE user_id = $1 AND deleted = False AND server_id = $2",
+            user.id, ctx.guild.id)
         confirm = await ctx.send(
             f"Are you sure you want do delete {result['message_count']} messages from user {user.mention}",
             allowed_mentions=None)
@@ -85,12 +82,9 @@ class ModCogs(commands.Cog):
         else:
             if str(reaction.emoji) == '✅':
                 await ctx.send("Confirmed")
-                connection = await self.bot.pg_con.acquire()
-                async with connection.transaction():
-                    all_messages = await self.bot.pg_con.fetch(
-                        "SELECT message_id from messages where user_id = $1 AND deleted = False AND server_id = $2",
-                        user.id, ctx.guild.id)
-                await self.bot.pg_con.release(connection)
+                all_messages = await self.bot.pg_con.fetch(
+                    "SELECT message_id from messages where user_id = $1 AND deleted = False AND server_id = $2",
+                    user.id, ctx.guild.id)
                 total_del = 0
                 for message in all_messages:
                     try:

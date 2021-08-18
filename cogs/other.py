@@ -123,16 +123,10 @@ class OtherCogs(commands.Cog, name="Other"):
         aliases=['aq']
     )
     async def addquote(self, ctx, *, quote):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            await self.bot.pg_con.execute(
-                "INSERT INTO quotes(quote, author, author_id, time, tokens) VALUES ($1,$2,$3,now(),to_tsvector($4))",
-                quote, ctx.author.display_name, ctx.author.id, quote)
-        await self.bot.pg_con.release(connection)
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            row_number = await self.bot.pg_con.fetchrow("SELECT COUNT(*) FROM quotes")
-        await self.bot.pg_con.release(connection)
+        await self.bot.pg_con.execute(
+            "INSERT INTO quotes(quote, author, author_id, time, tokens) VALUES ($1,$2,$3,now(),to_tsvector($4))",
+            quote, ctx.author.display_name, ctx.author.id, quote)
+        row_number = await self.bot.pg_con.fetchrow("SELECT COUNT(*) FROM quotes")
         await ctx.send(f"Added quote `{quote}` at index {row_number['count']}")
 
     @commands.command(
@@ -140,11 +134,8 @@ class OtherCogs(commands.Cog, name="Other"):
         aliases=['fq']
     )
     async def findquote(self, ctx, *, search):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            results = await self.bot.pg_con.fetch(
-                "SELECT quote, ROW_NUMBER () OVER (ORDER BY time) FROM quotes WHERE tokens @@ to_tsquery($1);", search)
-        await self.bot.pg_con.release(connection)
+        results = await self.bot.pg_con.fetch(
+            "SELECT quote, ROW_NUMBER () OVER (ORDER BY time) FROM quotes WHERE tokens @@ to_tsquery($1);", search)
         if len(results) > 1:
             index_res = "["
             iterres = iter(results)
@@ -167,19 +158,13 @@ class OtherCogs(commands.Cog, name="Other"):
         aliases=['dq', 'removequote', 'rq']
     )
     async def deletequote(self, ctx, *, delete: int):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            u_quote = await self.bot.pg_con.fetchrow(
-                "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
-                delete)
-        await self.bot.pg_con.release(connection)
+        u_quote = await self.bot.pg_con.fetchrow(
+            "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
+            delete)
         if u_quote:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                await self.bot.pg_con.execute(
-                    "DELETE FROM quotes WHERE serial_id in (SELECT serial_id FROM QUOTES ORDER BY TIME LIMIT 1 OFFSET $1)",
-                    delete - 1)
-            await self.bot.pg_con.release(connection)
+            await self.bot.pg_con.execute(
+                "DELETE FROM quotes WHERE serial_id in (SELECT serial_id FROM QUOTES ORDER BY TIME LIMIT 1 OFFSET $1)",
+                delete - 1)
             await ctx.send(f"Deleted quote `{u_quote['quote']}` from position {u_quote['row_number']}")
         else:
             await ctx.send("Im sorry. I could not find a quote on that index")
@@ -190,18 +175,12 @@ class OtherCogs(commands.Cog, name="Other"):
     )
     async def quote(self, ctx, index: int = None):
         if index is None:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                u_quote = await self.bot.pg_con.fetchrow(
-                    "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x  ORDER BY random() LIMIT 1")
-            await self.bot.pg_con.release(connection)
+            u_quote = await self.bot.pg_con.fetchrow(
+                "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x  ORDER BY random() LIMIT 1")
         else:
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                u_quote = await self.bot.pg_con.fetchrow(
-                    "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
-                    index)
-            await self.bot.pg_con.release(connection)
+            u_quote = await self.bot.pg_con.fetchrow(
+                "SELECT quote, row_number FROM (SELECT quote, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
+                index)
         if u_quote:
             await ctx.send(f"Quote {u_quote['row_number']}: `{u_quote['quote']}`")
         else:
@@ -212,12 +191,9 @@ class OtherCogs(commands.Cog, name="Other"):
         aliases=['infoquote', 'iq', 'wq']
     )
     async def whoquote(self, ctx, index: int):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            u_quote = await self.bot.pg_con.fetchrow(
-                "SELECT author, author_id, time, row_number FROM (SELECT author, author_id, time, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
-                index)
-        await self.bot.pg_con.release(connection)
+        u_quote = await self.bot.pg_con.fetchrow(
+            "SELECT author, author_id, time, row_number FROM (SELECT author, author_id, time, ROW_NUMBER () OVER () FROM quotes) x WHERE ROW_NUMBER = $1",
+            index)
         if u_quote:
             await ctx.send(
                 f"Quote {u_quote['row_number']} was added by: {u_quote['author']} ({u_quote['author_id']}) at {u_quote['time']}")
@@ -257,12 +233,9 @@ class OtherCogs(commands.Cog, name="Other"):
         aliases=['rolelist', 'listroles']
     )
     async def role_list(self, ctx):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            roles = await self.bot.pg_con.fetch(
-                "SELECT id, name, required_role, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order, name desc",
-                ctx.guild.id)
-        await self.bot.pg_con.release(connection)
+        roles = await self.bot.pg_con.fetch(
+            "SELECT id, name, required_role, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order, name desc",
+            ctx.guild.id)
         embed = discord.Embed(title="Roles", color=discord.Color(0x3cd63d))
         embed.set_thumbnail(url=ctx.guild.icon_url)
         for role in roles:
@@ -275,20 +248,14 @@ class OtherCogs(commands.Cog, name="Other"):
     )
     async def update_role_order(self, ctx, role, new_index: int):
         new_index = new_index - 1
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            roles = await self.bot.pg_con.fetch(
-                "SELECT id, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order, name DESC",
-                ctx.guild.id)
-        await self.bot.pg_con.release(connection)
+        roles = await self.bot.pg_con.fetch(
+            "SELECT id, display_order FROM roles WHERE guild_id = $1 AND self_assignable = TRUE order by display_order, name DESC",
+            ctx.guild.id)
         role_index = next((index for (index, d) in enumerate(roles) if d["id"] == int(role)), None)
         roles.insert(new_index, roles.pop(role_index))
         for index, role in enumerate(roles):
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
                 await self.bot.pg_con.execute("UPDATE roles set display_order = $1 WHERE id = $2",
                                               index, role['id'])
-            await self.bot.pg_con.release(connection)
 
     @commands.command(
         name="add_role",
@@ -297,12 +264,9 @@ class OtherCogs(commands.Cog, name="Other"):
     async def add_role(self, ctx, role: int, alias: str, required_role: int = None):
         try:
             await ctx.send(f"{required_role=}, {alias=}, {role=}, {ctx.guild.id=}")
-            connection = await self.bot.pg_con.acquire()
-            async with connection.transaction():
-                test = await self.bot.pg_con.execute(
-                    "UPDATE roles SET self_assignable = TRUE, required_role = $1, alias = $2 where id = $3 and guild_id = $4",
-                    required_role, alias, role, ctx.guild.id)
-            await self.bot.pg_con.release(connection)
+            test = await self.bot.pg_con.execute(
+                "UPDATE roles SET self_assignable = TRUE, required_role = $1, alias = $2 where id = $3 and guild_id = $4",
+                required_role, alias, role, ctx.guild.id)
             await ctx.send(test)
         except Exception as e:
             await ctx.send(e)
@@ -318,11 +282,8 @@ class OtherCogs(commands.Cog, name="Other"):
         usage="!remove_roll [roll]",
     )
     async def remove_roll(self, ctx, role):
-        connection = await self.bot.pg_con.acquire()
-        async with connection.transaction():
-            await self.bot.pg_con.execute("UPDATE roles SET self_assignable = FALSE where id = $1 AND guild_id = $2",
-                                          role, ctx.guild.id)
-        await self.bot.pg_con.release(connection)
+        await self.bot.pg_con.execute("UPDATE roles SET self_assignable = FALSE where id = $1 AND guild_id = $2",
+                                      role, ctx.guild.id)
 
     @commands.command(
         name="role",
