@@ -399,7 +399,7 @@ class StatsCogs(commands.Cog, name="stats"):
                 logging.debug(old_content)
                 await self.bot.pg_con.execute(
                     "INSERT INTO message_edit(id, old_content, new_content, edit_timestamp) VALUES ($1,$2,$3,$4)",
-                    int(message.data['id']), old_content['content'], message.data['content'],
+                    int(message.data['id']), old_content, message.data['content'],
                     datetime.fromisoformat(message.data['edited_timestamp']).replace(tzinfo=None))
                 logging.debug("post insert")
                 await self.bot.pg_con.execute("UPDATE messages set content = $1 WHERE message_id = $2",
