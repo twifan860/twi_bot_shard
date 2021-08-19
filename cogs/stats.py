@@ -155,11 +155,14 @@ class StatsCogs(commands.Cog, name="stats"):
                             member.id, member.guild.id)
                         logging.info(f"Added {member.name} - {member.id}")
                     else:
-                        await self.bot.pg_con.execute(
-                            "INSERT INTO server_membership(user_id, server_id) VALUES ($1,$2)",
-                            member.id, member.guild.id)
+                        try:
+                            await self.bot.pg_con.execute(
+                                "INSERT INTO server_membership(user_id, server_id) VALUES ($1,$2)",
+                                member.id, member.guild.id)
+                        except asyncpg.UniqueViolationError:
+                            pass
         except Exception as e:
-            logging.error(f'{type(e).__name__} - {e}')
+            logging.exception(f'{type(e).__name__} - {e}')
         await ctx.send("Done!")
 
     @commands.command(
