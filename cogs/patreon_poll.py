@@ -183,7 +183,7 @@ class PollCog(commands.Cog, name="Poll"):
     @commands.check(is_bot_channel)
     async def poll_list(self, ctx, year=datetime.now(timezone.utc).year):
         polls_years = await self.bot.pg_con.fetch(
-            "SELECT title, index_serial FROM poll WHERE date_part('year', start_date) = $1",
+            "SELECT title, index_serial FROM poll WHERE date_part('year', start_date) = $1 ORDER BY start_date",
             year)
         if not polls_years:
             await ctx.send("Sorry there were no polls that year that i could find :(")
