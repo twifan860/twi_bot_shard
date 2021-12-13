@@ -604,6 +604,10 @@ class StatsCogs(commands.Cog, name="stats"):
                                           thread.id, thread.guild.id, thread.parent_id, thread.owner_id,
                                           thread.slowmode_delay, thread.archived, thread.locked, thread.archiver_id,
                                           thread.auto_archive_duration, thread.is_private(), thread.name, False)
+            await self.bot.pg_con.execute(
+                "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+                "VALUES ($1,$2,$3,$4,$5,$6)",
+                "threads", "THREAD_CREATED", thread.name, thread.name, datetime.now().replace(tzinfo=None), thread.id)
             channel = self.bot.get_channel(871486325692432464)
             await channel.send(f"A new thread has been created: <#{thread.id}>")
             me = await self.bot.fetch_user(268608466690506753)
@@ -619,27 +623,55 @@ class StatsCogs(commands.Cog, name="stats"):
                                       thread.id, True)
         await self.bot.pg_con.execute("UPDATE messages SET deleted = $2 where channel_id = $1",
                                       thread.id, True)
+        await self.bot.pg_con.execute(
+            "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+            "VALUES ($1,$2,$3,$4,$5,$6)",
+            "threads", "THREAD_DELETED", thread.name, thread.name, datetime.now().replace(tzinfo=None), thread.id)
 
     @Cog.listener("on_thread_update")
     async def thread_update(self, before, after):
         if before.slowmode_delay != after.slowmode_delay:
             await self.bot.pg_con.execute("UPDATE threads set slowmode_delay = $1 where id = $2",
                                           after.slowmode_delay, after.id)
+            await self.bot.pg_con.execute(
+                "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+                "VALUES ($1,$2,$3,$4,$5,$6)",
+                "threads", "THREAD_SLOWMODE_UPDATED", before.slowmode_delay, after.slowmode_delay, datetime.now().replace(tzinfo=None), after.id)
         if before.archived != after.archived:
             await self.bot.pg_con.execute("UPDATE threads set archived = $1 AND archiver_id = $3 where id = $2",
                                           after.archived, after.id, after.archiver_id)
+            await self.bot.pg_con.execute(
+                "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+                "VALUES ($1,$2,$3,$4,$5,$6)",
+                "threads", "THREAD_ARCHIVED_UPDATED", before.archived, after.archived, datetime.now().replace(tzinfo=None), after.id)
         if before.locked != after.locked:
             await self.bot.pg_con.execute("UPDATE threads set locked = $1 where id = $2",
                                           after.locked, after.id)
+            await self.bot.pg_con.execute(
+                "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+                "VALUES ($1,$2,$3,$4,$5,$6)",
+                "threads", "THREAD_LOCKED_UPDATED", before.locked, after.locked, datetime.now().replace(tzinfo=None), after.id)
         if before.auto_archive_duration != after.auto_archive_duration:
             await self.bot.pg_con.execute("UPDATE threads set auto_archive_duration = $1 where id = $2",
                                           after.auto_archive_duration, after.id)
+            await self.bot.pg_con.execute(
+                "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+                "VALUES ($1,$2,$3,$4,$5,$6)",
+                "threads", "THREAD_AUTO_ARCHIVE_DURATION_UPDATED", before.auto_archive_duration, after.auto_archive_duration, datetime.now().replace(tzinfo=None), after.id)
         if before.is_private() != after.is_private():
             await self.bot.pg_con.execute("UPDATE threads set is_private = $1 where id = $2",
                                           after.is_private(), after.id)
+            await self.bot.pg_con.execute(
+                "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+                "VALUES ($1,$2,$3,$4,$5,$6)",
+                "threads", "THREAD_PRIVATE_UPDATED", before.is_private(), after.is_private(), datetime.now().replace(tzinfo=None), after.id)
         if before.name != after.name:
             await self.bot.pg_con.execute("UPDATE threads set name = $1 where id = $2",
                                           after.name, after.id)
+            await self.bot.pg_con.execute(
+                "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
+                "VALUES ($1,$2,$3,$4,$5,$6)",
+                "threads", "THREAD_NAME_UPDATED", before.name, after.name, datetime.now().replace(tzinfo=None), after.id)
 
     @Cog.listener("on_thread_member_join")
     async def thread_member_join(self, threadmember):
@@ -666,7 +698,7 @@ class StatsCogs(commands.Cog, name="stats"):
             await self.bot.pg_con.execute(
                 'INSERT INTO updates(updated_table, action, before, after, date, primary_key) VALUES($1,$2,$3,$4,$5,$6)',
                 "channels", "UPDATE_CHANNEL_CATEGORY_ID", before.category_id, after.category_id,
-                datetime.now(),
+                datetime.now().replace(tzinfo=None),
                 str(after.id))
         if before.position != after.position:
             await self.bot.pg_con.execute("UPDATE channels set position = $1 where id = $2",
