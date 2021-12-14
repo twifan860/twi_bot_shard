@@ -17,7 +17,7 @@ context.load_verify_locations(f"{home}/ssl-cert/server-ca.pem")
 context.load_cert_chain(f"{home}/ssl-cert/client-cert.pem", f"{home}/ssl-cert/client-key.pem")
 logging.basicConfig(filename=f'{home}/twi_bot_shard/cognita.log',
                     format='%(asctime)s :: %(levelname)-8s :: %(filename)s :: %(message)s',
-                    level=logging.INFO)
+                    level=logging.WARNING)
 logging.info("Cognita starting")
 intents = discord.Intents.default()  # All but the two privileged ones
 intents.members = True  # Subscribe to the Members intent
