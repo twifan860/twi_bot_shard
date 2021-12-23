@@ -388,13 +388,15 @@ class StatsCogs(commands.Cog, name="stats"):
 
     @Cog.listener("on_message")
     async def save_listener(self, message):
-        await save_message(self, message)
+        try:
+            await save_message(self, message)
+        except Exception as e:
+            logging.error(f"Error: {e} on message save")
 
     @Cog.listener("on_raw_message_edit")
     async def message_edited(self, message):
         try:
-            if 'content' in message.data and 'edited_timestamp' in message.data and message.data[
-                'edited_timestamp'] is not None:
+            if 'content' in message.data and 'edited_timestamp' in message.data and message.data['edited_timestamp'] is not None:
                 logging.debug(f"message edited {message}")
                 old_content = await self.bot.pg_con.fetchval(
                     "SELECT content FROM messages where message_id = $1 LIMIT 1",
@@ -640,12 +642,12 @@ class StatsCogs(commands.Cog, name="stats"):
                 "threads", "THREAD_SLOWMODE_UPDATED", before.slowmode_delay, after.slowmode_delay,
                 datetime.now().replace(tzinfo=None), str(after.id))
         if before.archived != after.archived:
-            if after.archiver_id is None:
-                await self.bot.pg_con.execute("UPDATE threads set archived = $1 AND archiver_id = $3 where id = $2",
-                                              after.archived, after.id, after.archiver_id)
-            else:
+            if after.archiver_id:
                 await self.bot.pg_con.execute("UPDATE threads set archived = $1 where id = $2",
                                               after.archived, after.id)
+            else:
+                await self.bot.pg_con.execute("UPDATE threads set archived = $1 AND archiver_id = $3 where id = $2",
+                                              after.archived, after.id, after.archiver_id)
             await self.bot.pg_con.execute(
                 "INSERT INTO updates(updated_table, action, before, after, date, primary_key) "
                 "VALUES ($1,$2,$3,$4,$5,$6)",
@@ -852,7 +854,7 @@ class StatsCogs(commands.Cog, name="stats"):
 
     @commands.command(
         name="messagecount",
-        brief="Retrive message count from a channel in the last x hours",
+        brief="Retrieve message count from a channel in the last x hours",
         help="",
         aliases=['mc', 'count'],
         usage='[channel] [hours]',
