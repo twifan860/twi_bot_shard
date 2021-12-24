@@ -56,17 +56,17 @@ async def save_message(self, message):
         await self.bot.pg_con.execute("INSERT INTO mentions(message_id, role_mention) VALUES ($1,$2)",
                                       message.id, role_mention.id)
 
-    if message.attachments:
-        for attachment in message.attachments:
-            await self.bot.pg_con.execute("INSERT INTO attachments "
-                                          "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
-                                          attachment.id, attachment.filename, attachment.url,
-                                          attachment.size, attachment.height, attachment.width,
-                                          attachment.is_spoiler(), message.id)
+    # if message.attachments:
+    #     for attachment in message.attachments:
+    #         await self.bot.pg_con.execute("INSERT INTO attachments "
+    #                                       "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+    #                                       attachment.id, attachment.filename, attachment.url,
+    #                                       attachment.size, attachment.height, attachment.width,
+    #                                       attachment.is_spoiler(), message.id)
 
-    if message.reactions:
-        for reaction in message.reactions:
-            await save_reaction(self, reaction)
+    # if message.reactions:
+    #     for reaction in message.reactions:
+    #         await save_reaction(self, reaction)
 
     try:
         nick = message.author.nick
